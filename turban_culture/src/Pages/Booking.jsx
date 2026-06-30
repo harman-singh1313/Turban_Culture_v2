@@ -18,8 +18,7 @@ const Booking = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/pricing`)
-
+const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/pricing`)
         console.log("API response:", res.data) // ← pehli var ye dekho console vich
 
         const packages = res.data?.pricing?.packages
