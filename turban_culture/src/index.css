@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@keyframes slidein {
+  0%   { opacity: 0; transform: translateX(-50px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes kenburns {
+  0%   { transform: scale(1.08); }
+  100% { transform: scale(1.0); }
+}
+
+@keyframes fadein {
+  0%   { opacity: 0; }
+  100% { opacity: 0.4; }
+}
+
+@keyframes bottomtotop {
+  0%   { opacity: 0; transform: translateY(50px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeup {
+  0%   { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+
+.animate-slidein {
+  animation: slidein 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-kenburns {
+  animation: kenburns 18s ease-out forwards;
+}
+.animate-fadein {
+  animation: fadein 2s ease forwards;
+}
+
+.animate-fadeup {
+  animation: fadeup 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-bottomtotop {
+  animation: bottomtotop 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
