@@ -22,7 +22,7 @@ const Dashboard = lazy(() => import("./Dashboard/SidebarPages/Dashboard"));
 const AdminLogin = lazy(() => import("./Pages/AdminLogin"));
 const GalleryManager = lazy(() => import("./Dashboard/SidebarPages/GalleryManager"));
 const ProtectedRoute = lazy(() => import("./Pages/ProtectedRoute"));
-
+const ResetPassword = lazy(() => import("./Pages/ResetPassword"));
 /* ---------------- LAYOUT ---------------- */
 const Layout = () => (
   <>
@@ -49,6 +49,7 @@ const App = () => {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/booking" element={<Booking />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
           </Route>
 
           {/* ADMIN LOGIN */}

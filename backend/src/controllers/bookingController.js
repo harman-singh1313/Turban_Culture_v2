@@ -70,11 +70,18 @@ export const createBooking = async (req, res) => {
 
     const finalOnlinePaid = Number(onlinePaid || paidAmount || 0);
 
-    const finalPendingAmount = totalAmount - finalOnlinePaid;
-
+const finalPendingAmount = Math.max(totalAmount - finalOnlinePaid, 0);
     // const finalCashAmount = paymentMode === "cash" ? finalPendingAmount : 0;
-    const finalCashAmount = finalPendingAmount;
-    //-----------
+let finalCashAmount = 0;
+
+if (paymentMode === "cash") {
+  finalCashAmount = finalPendingAmount;
+} else {
+  finalCashAmount = 0;
+}
+
+
+//-----------
 
     const booking = await Booking.create({
       name,

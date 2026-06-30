@@ -13,50 +13,74 @@ const AdminLogin = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  try {
-    const res = await axios.post(`${API_URL}/api/auth/login`, {
-      email,
-      password,
-    });
+    try {
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
+        email,
+        password,
+      });
 
-    // ✅ OTP FLOW ENABLED
-    if (res.data.step === "otp") {
-      setStep(2);
-      return;
+      if (res.data.step === "otp") {
+        setStep(2);
+        return;
+      }
+
+      if (res.data.token) {
+        localStorage.setItem("adminToken", res.data.token);
+        navigate("/admin");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Wrong email or password");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // fallback (if direct token comes)
-    if (res.data.token) {
-      localStorage.setItem("adminToken", res.data.token);
-      navigate("/admin");
-    }
-
-  } catch (err) {
-    setError(err.response?.data?.message || "Wrong email or password");
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // Step 2 — OTP Verify
   const handleOTPVerify = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
       const res = await axios.post(`${API_URL}/api/auth/verify-otp`, {
         email,
         otp,
       });
+
       localStorage.setItem("adminToken", res.data.token);
       navigate("/admin");
     } catch (err) {
       setError(err.response?.data?.message || "Wrong or expired OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔐 NEW: Forgot Password Function
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError("Please enter email first");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await axios.post(
+        `${API_URL}/api/auth/forgot-password`,
+        { email }
+      );
+
+      alert("Reset link generated! Check console/email");
+      console.log(res.data.resetLink);
+
+    } catch (err) {
+      setError(err.response?.data?.message || "Error sending reset link");
     } finally {
       setLoading(false);
     }
@@ -78,6 +102,7 @@ const handleLogin = async (e) => {
         {/* Step 1 — Password Form */}
         {step === 1 && (
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
+
             <div>
               <label className="text-[10px] text-[#a08060] tracking-wide uppercase">Email</label>
               <input
@@ -89,6 +114,7 @@ const handleLogin = async (e) => {
                 required
               />
             </div>
+
             <div>
               <label className="text-[10px] text-[#a08060] tracking-wide uppercase">Password</label>
               <input
@@ -100,7 +126,20 @@ const handleLogin = async (e) => {
                 required
               />
             </div>
+
+            {/* 🔐 FORGOT PASSWORD BUTTON (NEW) */}
+            <div className="flex justify-end mt-1">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-xs text-[#c9913a] hover:underline"
+              >
+                Forgot Password?
+              </button>
+            </div>
+
             {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+
             <button
               type="submit"
               disabled={loading}
@@ -108,29 +147,36 @@ const handleLogin = async (e) => {
             >
               {loading ? "Checking..." : "Continue →"}
             </button>
+
           </form>
         )}
 
         {/* Step 2 — OTP Form */}
         {step === 2 && (
           <form onSubmit={handleOTPVerify} className="flex flex-col gap-4">
+
             <div className="text-center bg-[#fff8ef] rounded-xl p-3 mb-2">
               <p className="text-xs text-gray-500">OTP bheja gaya:</p>
               <p className="text-sm font-semibold text-[#c9913a]">{email}</p>
             </div>
+
             <div>
               <label className="text-[10px] text-[#a08060] tracking-wide uppercase">6-Digit OTP</label>
               <input
                 type="text"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                onChange={(e) =>
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
                 placeholder="••••••"
                 maxLength={6}
                 className="w-full mt-1 bg-[#faf8f5] border border-[#c9913a]/25 rounded-xl px-3 py-2.5 text-sm text-center tracking-[8px] font-bold focus:outline-none focus:border-[#c9913a]"
                 required
               />
             </div>
+
             {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+
             <button
               type="submit"
               disabled={loading}
@@ -138,13 +184,19 @@ const handleLogin = async (e) => {
             >
               {loading ? "Verifying..." : "Verify OTP →"}
             </button>
+
             <button
               type="button"
-              onClick={() => { setStep(1); setError(""); setOtp(""); }}
+              onClick={() => {
+                setStep(1);
+                setError("");
+                setOtp("");
+              }}
               className="text-xs text-gray-400 hover:text-gray-600 text-center"
             >
               ← Back to Login
             </button>
+
           </form>
         )}
 
