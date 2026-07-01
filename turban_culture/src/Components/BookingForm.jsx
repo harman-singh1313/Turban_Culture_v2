@@ -156,7 +156,6 @@ function BookingForm() {
   const [distanceKm, setDistanceKm] = useState(0);
   const [showPayModal, setShowPayModal] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [processingBooking, setProcessingBooking] = useState(false); 
 
   // ── ✅ FIX: freeTravelKm aur travelPricePerKm bhi backend to fetch karo ──
   const [pricing, setPricing] = useState({
@@ -368,34 +367,26 @@ if (!pricingBreakdown) {
       amount: order.amount,
       currency: "INR",
       order_id: order.id,
-handler: async function (response) {
-  setProcessingBooking(true);   // ✅ loader on
 
-  try {
-    const verifyRes = await axios.post(`${API_URL}/api/verify-payment`, response);
+      handler: async function (response) {
+        const verifyRes = await axios.post(`${API_URL}/api/verify-payment`, response);
 
-    if (!verifyRes.data.success) {
-      alert("Payment failed");
-      setProcessingBooking(false);
-      return;
-    }
+        if (!verifyRes.data.success) return alert("Payment failed");
 
-    const bookingRes = await axios.post(`${API_URL}/api/bookings`, {
-      ...formData,
-      pricingBreakdown,
-      paymentMode: mode,
-      paidAmount: amountToPay,
-      paymentId: response.razorpay_payment_id,
-      orderId: response.razorpay_order_id,
-    });
+        const bookingRes = await axios.post(`${API_URL}/api/bookings`, {
+          ...formData,
+          pricingBreakdown,
+          paymentMode: mode,
+          paidAmount: amountToPay,
+          paymentId: response.razorpay_payment_id,
+          orderId: response.razorpay_order_id,
+        });
 
-    navigate(`/receipt/${bookingRes.data.booking._id}`);
-  } catch (err) {
-    console.log(err);
-    alert("Something went wrong, please contact support.");
-    setProcessingBooking(false);
-  }
-},
+        navigate("/receipt", {
+          state: { bookingId: bookingRes.data.booking._id },
+        });
+      },
+
       prefill: {
         name: formData.name,
         contact: formData.phone,
@@ -430,27 +421,6 @@ handler: async function (response) {
   onConfirm={handlePayConfirm}
 />
       )}
-        {processingBooking && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 gap-4">
-          <div
-            style={{
-              width: "48px", height: "48px",
-              border: "4px solid #e8dccb",
-              borderTop: "4px solid #c9913a",
-              borderRadius: "50%",
-              animation: "spin 0.8s linear infinite",
-            }}
-          />
-          <p className="text-sm text-[#a08060]">Confirming your booking...</p>
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
-      )}
-
 
       <div className="bg-white border border-[#c9913a]/30 rounded-2xl shadow-lg p-6 w-full max-w-2xl">
 

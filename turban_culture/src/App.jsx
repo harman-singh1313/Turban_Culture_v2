@@ -71,7 +71,8 @@ const App = () => {
           </Route>
 
           {/* RECEIPT */}
-<Route path="/receipt/:bookingId" element={<ReceiptPage />} />
+          <Route path="/receipt" element={<ReceiptPage />} />
+
         </Routes>
       </Suspense>
     </>
