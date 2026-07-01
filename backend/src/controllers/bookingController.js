@@ -83,42 +83,45 @@ if (paymentMode === "cash") {
 
 //-----------
 
-    const booking = await Booking.create({
-      name,
-      phone,
-      email,
-      eventType,
-      customEvent,
-      days,
-      startDate,
-      endDate,
-      location,
-      bookingFor,
-      paggMembers,
-      paggStyle,
-      paggTime,
-      preferredTime,
-      formId,
-      paymentId,
-      orderId,
-      paymentStatus: paymentStatus || "SUCCESS",
-      totalPrice,
-      totalAmount,
+const booking = await Booking.create({
+  name,
+  phone,
+  email,
+  eventType,
+  customEvent,
+  days,
+  startDate,
+  endDate,
+  location,
+  bookingFor,
+  paggMembers,
+  paggStyle,
+  paggTime,
+  preferredTime,
+  formId,
+  paymentId,
+  orderId,
+  paymentStatus: paymentStatus || "SUCCESS",
+  totalPrice,
+  totalAmount,
 
-      // ── NEW FIELDS ──
-      paidAmount,
-      paymentMode,
-      travelCharge: travelCharge || 0,
-      travelChargeIncludedOnline: travelChargeIncludedOnline || false,
-      travelChargePaymentStatus: travelChargePaymentStatus || "PAY_LATER",
-      distanceKm: distanceKm || 0,
+  // ── FIX: bookingStatus set karo agar payment already success hai ──
+  bookingStatus: (paymentId && (paymentStatus || "SUCCESS") === "SUCCESS") 
+    ? "CONFIRMED" 
+    : "PENDING",
 
-      
-      onlinePaid: finalOnlinePaid,
-      cashAmount: finalCashAmount,
-      pendingAmount: finalPendingAmount,
-    });
+  // ── NEW FIELDS ──
+  paidAmount,
+  paymentMode,
+  travelCharge: travelCharge || 0,
+  travelChargeIncludedOnline: travelChargeIncludedOnline || false,
+  travelChargePaymentStatus: travelChargePaymentStatus || "PAY_LATER",
+  distanceKm: distanceKm || 0,
 
+  onlinePaid: finalOnlinePaid,
+  cashAmount: finalCashAmount,
+  pendingAmount: finalPendingAmount,
+});
     // EMAIL
     try {
       await sendUserConfirmationEmail({
@@ -228,8 +231,12 @@ export const createOrder = async (req, res) => {
 // ================= VERIFY PAYMENT =================
 export const verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-      req.body;
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      formId
+    } = req.body;
 
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -237,17 +244,43 @@ export const verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Payment Verification Failed" });
+      return res.status(400).json({
+        success: false,
+        message: "Payment Verification Failed"
+      });
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Payment Verified Successfully" });
+    // 🔥 IMPORTANT: UPDATE BOOKING HERE
+    const booking = await Booking.findOneAndUpdate(
+      { formId },
+      {
+        paymentId: razorpay_payment_id,
+        orderId: razorpay_order_id,
+        paymentStatus: "SUCCESS",
+        bookingStatus: "CONFIRMED"
+      },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment Verified + Booking Updated",
+      booking
+    });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
