@@ -204,6 +204,27 @@ export const getBookings = async (req, res) => {
   }
 };
 
+// ================= GET SINGLE BOOKING BY ID =================
+export const getBookingById = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    res.status(200).json({ success: true, booking });
+  } catch (error) {
+    console.error("GET BOOKING BY ID ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 const generateFormId = () => {
   return `FORM-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().split("-")[0].toUpperCase()}`;
 };

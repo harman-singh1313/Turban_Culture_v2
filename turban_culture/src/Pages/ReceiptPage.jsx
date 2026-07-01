@@ -1,17 +1,37 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useRef, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 function ReceiptPage() {
   const slipRef = useRef();
-  const location = useLocation();
+  const { bookingId } = useParams();
   const navigate = useNavigate();
 
-  const bookingId       = location.state?.bookingId;
-  const type            = location.state?.type || "form";
-  const booking         = location.state?.booking;
-  const selectedPackage = location.state?.selectedPackage;
+  const [booking, setBooking] = useState(null);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [type, setType] = useState("form");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!bookingId) {
+      setLoading(false);
+      return;
+    }
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/api/bookings/${bookingId}`)
+      .then((res) => {
+        setBooking(res.data.booking);
+        setSelectedPackage(res.data.booking?.selectedPackage || null);
+        setType(res.data.booking?.type || "form");
+      })
+      .catch((err) => {
+        console.log("Receipt fetch error:", err);
+        setBooking(null);
+      })
+      .finally(() => setLoading(false));
+  }, [bookingId]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -37,6 +57,27 @@ function ReceiptPage() {
     pdf.save(`receipt-${bookingId}.pdf`);
   };
 
+if (loading) {
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: "#f8f5f0", gap: "16px" }}>
+      <div style={{
+        width: "48px", height: "48px",
+        border: "4px solid #e8dccb",
+        borderTop: "4px solid #c9913a",
+        borderRadius: "50%",
+        animation: "spin 0.8s linear infinite",
+      }} />
+      <p style={{ color: "#6b7280", fontSize: "14px" }}>Preparing your receipt...</p>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
   if (!bookingId || !booking) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f9fafb", padding: "0 16px" }}>
@@ -50,6 +91,7 @@ function ReceiptPage() {
   }
 
   const isPackage = type === "package";
+  // ... baaki poora code (payment breakdown, rows, JSX) waisa hi rahega jaisa pehle tha
 
   // ── Payment breakdown ──────────────────────────────────
   const isCash       = booking.paymentMode === "cash";
