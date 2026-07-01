@@ -1,13 +1,12 @@
 import crypto from "crypto";
 import bcrypt from "bcrypt";
-import User from "../models/userModel.js";
 import PasswordReset from "../models/passwordResetModel.js";
-
+import Admin from "../models/adminModel.js";
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) return res.status(404).json({ message: "User not found" });
+const admin = await Admin.findOne({ email });
+  if (!admin) return res.status(404).json({ message: "User not found" });
 
   const token = crypto.randomBytes(32).toString("hex");
 
@@ -17,7 +16,7 @@ export const forgotPassword = async (req, res) => {
     expireAt: Date.now() + 15 * 60 * 1000, // 15 min
   });
 
-  const resetLink = `http://turbanculture.com/reset-password/${token}`;
+  const resetLink = `https://turbanculture.com/reset-password/${token}`;
   
   console.log("RESET LINK:", resetLink);
 
@@ -39,7 +38,7 @@ export const resetPassword = async (req, res) => {
 
   const hashed = await bcrypt.hash(newPassword, 10);
 
-  await User.updateOne({ email: record.email }, { $set: { password: hashed } });
+  await Admin.updateOne({ email: record.email }, { $set: { password: hashed } });
 
   await PasswordReset.deleteOne({ token });
 
