@@ -18,7 +18,7 @@ export const forgotPassword = async (req, res) => {
   });
 
   const resetLink = `http://turbanculture.com/reset-password/${token}`;
-  ...
+  
   console.log("RESET LINK:", resetLink);
 
   res.json({ message: "Reset link generated", resetLink });
