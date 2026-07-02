@@ -180,8 +180,15 @@ const generateFormId = () => {
 // ================= CREATE ORDER =================
 export const createOrder = async (req, res) => {
   try {
+    const Razorpay = (await import("razorpay")).default;
+
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
     const { amount, receipt } = req.body;
-    const formId = receipt || generateFormId(); // ✅ frontend ka formId use karo, naya mat banao
+    const formId = receipt || generateFormId();
 
     const order = await razorpay.orders.create({
       amount: amount * 100,
@@ -190,10 +197,18 @@ export const createOrder = async (req, res) => {
       notes: { formId, booking_id: formId },
     });
 
-    res.status(200).json({ success: true, formId, order });
+    res.status(200).json({
+      success: true,
+      formId,
+      order,
+    });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("CREATE ORDER ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
