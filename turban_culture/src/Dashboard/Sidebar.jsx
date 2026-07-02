@@ -34,6 +34,11 @@ const menuItems = [
     path: "/admin/galleryManager",
     icon: ShoppingBag,
   },
+  {
+    title:"Slider Manager",
+    path:"/admin/sliderManager",
+     icon: ShoppingBag,
+  },
   // {
   //   title: "Orders",
   //   path: "/admin/orders",

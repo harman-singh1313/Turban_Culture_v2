@@ -18,6 +18,7 @@ import reviewRoutes from './src/routes/reviewRoutes.js'
 import galleryRoutes from './src/routes/galleryRoutes.js'
 import leadRoutes from './src/routes/leadRoutes.js'
 import passwordResetRoutes from "./src/routes/passwordResetRoutes.js";
+import sliderRoutes from "./src/routes/sliderRoutes.js"
 dotenv.config();
 
 // MongoDB Connect
@@ -49,6 +50,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api",sliderRoutes)
 app.use("/api/password-reset", passwordResetRoutes);
 // ================= HOME =================
 app.get("/", (req, res) => {
