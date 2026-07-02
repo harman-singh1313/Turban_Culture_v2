@@ -228,7 +228,6 @@ export const verifyPayment = async (req, res) => {
           orderId: razorpay_order_id,
           paymentStatus: "SUCCESS",
           bookingStatus: "CONFIRMED",
-onlinePaid: booking.onlinePaid || booking.totalAmount,
           pendingAmount: 0,
         },
       },
