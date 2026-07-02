@@ -3,13 +3,12 @@ import mongoose from "mongoose";
 const pricingSchema = new mongoose.Schema({
 
   // ── Simple Booking Prices ──
-  groomPrice: { type: Number, default: 4100 },
-  extraDayPrice: { type: Number, default: 1000 },
-  memberPrice: { type: Number, default: 300 },
-  engagementPrice: { type: Number, default: 2100 },
-  travelPricePerKm: { type: Number, default: 20 },
-  freeTravelKm: { type: Number, default: 30 },
-
+groomPrice: { type: Number, required: true, min: 0 },
+extraDayPrice: { type: Number, required: true, min: 0 },
+memberPrice: { type: Number, required: true, min: 0 },
+engagementPrice: { type: Number, required: true, min: 0 },
+travelPricePerKm: { type: Number, required: true, min: 0 },
+freeTravelKm: { type: Number, required: true, min: 0 },
   // ── Packages ──
   packages: [
     {

@@ -338,25 +338,52 @@ const handleSubmitClick = async () => {
 };
 
 const handlePayConfirm = async (mode, amountFromModal) => {
-    setShowPayModal(false);
+  setShowPayModal(false);
 
-const breakdown = pricingBreakdown || {};
-if (!pricingBreakdown) {
-  alert("Pricing not ready yet");
-  return;
-}
-
+  const breakdown = pricingBreakdown || {};
+  if (!pricingBreakdown) {
+    alert("Pricing not ready yet");
+    return;
+  }
 
   const amountToPay =
-    mode === "online"
-      ? breakdown.totalAmount
-      : breakdown.advanceAmount;
+    mode === "online" ? breakdown.totalAmount : breakdown.advanceAmount;
 
   try {
     setLoading(true);
 
-    const orderRes = await axios.post(`${API_URL}/api/create-order`, {
-      amount: amountToPay,
+    // ✅ STEP 1: Booking pehle hi bana do (PENDING status)
+const bookingRes = await axios.post(`${API_URL}/api/bookings`, {
+  formId: formData.formId,
+  name: formData.name,
+  phone: formData.phone,
+  email: formData.email,
+  eventType: formData.eventType,
+  customEvent: formData.customEvent,
+  days: formData.days,
+  startDate: formData.startDate,
+  location: formData.location,
+  bookingFor: formData.bookingFor,
+  paggMembers: formData.paggMembers,
+  paggStyle: formData.paggStyle,
+  paggTime: formData.paggTime,
+  preferredTime: formData.preferredTime,
+
+  totalPrice: amountToPay,
+  paymentMode: mode,
+  paidAmount: amountToPay,
+  paymentStatus: "PENDING",
+
+  travelCharge: pricingBreakdown.travelCharge,
+  onlinePaid: mode === "online" ? amountToPay : 0,
+  cashAmount: mode === "cash" ? amountToPay : 0,
+});
+
+    const bookingId = bookingRes.data.booking._id;
+
+    // ✅ STEP 2: Order create karo
+const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
+        amount: amountToPay,
       receipt: formData.formId,
     });
 
@@ -369,22 +396,30 @@ if (!pricingBreakdown) {
       order_id: order.id,
 
       handler: async function (response) {
-        const verifyRes = await axios.post(`${API_URL}/api/verify-payment`, response);
+        try {
+          const verifyRes = await axios.post(
+            `${API_URL}/api/bookings/verify-payment`,
+            {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              formId: formData.formId,
+            }
+          );
 
-        if (!verifyRes.data.success) return alert("Payment failed");
+          if (!verifyRes.data.success) {
+            alert("Payment verification failed");
+            return;
+          }
 
-        const bookingRes = await axios.post(`${API_URL}/api/bookings`, {
-          ...formData,
-          pricingBreakdown,
-          paymentMode: mode,
-          paidAmount: amountToPay,
-          paymentId: response.razorpay_payment_id,
-          orderId: response.razorpay_order_id,
-        });
-
-        navigate("/receipt", {
-          state: { bookingId: bookingRes.data.booking._id },
-        });
+          navigate("/receipt", { state: { bookingId } });
+        } catch (verifyErr) {
+          console.log("VERIFY ERROR:", verifyErr.response?.data || verifyErr.message);
+          alert(
+            "Payment verify error: " +
+              (verifyErr.response?.data?.message || verifyErr.message)
+          );
+        }
       },
 
       prefill: {
@@ -397,7 +432,10 @@ if (!pricingBreakdown) {
 
     new window.Razorpay(options).open();
   } catch (err) {
-    console.log(err);
+    console.log("PAYMENT FLOW ERROR:", err.response?.data || err.message);
+    alert(
+      "Something went wrong: " + (err.response?.data?.message || err.message)
+    );
   } finally {
     setLoading(false);
   }

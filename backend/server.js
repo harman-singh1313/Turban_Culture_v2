@@ -36,20 +36,20 @@ app.use(cors({
 app.use(express.json());
 
 // ================= ROUTES =================
-app.use("/api", bookingRoutes);
 app.use("/api/distance", distanceRoute);
 app.use("/api/location", locationRouter);
+app.use("/api/bookings", bookingRoutes);
 app.use("/api/quick-bookings", quickBookingRoutes);
-app.use("/api", paymentRouter);
-app.use("/api", receiptRoutes);
+app.use("/api/payment", paymentRouter);
+app.use("/api/receipts", receiptRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin-bookings",adminBookingRouters);
-app.use("/api/auth", authRoutes);
 app.use("/api/pricing", pricingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/leads", leadRoutes);
-app.use("/api/auth", passwordResetRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/password-reset", passwordResetRoutes);
 // ================= HOME =================
 app.get("/", (req, res) => {
   res.send("Backend Running");

@@ -70,62 +70,182 @@ export const createBooking = async (req, res) => {
 
     const finalOnlinePaid = Number(onlinePaid || paidAmount || 0);
 
-const finalPendingAmount = Math.max(totalAmount - finalOnlinePaid, 0);
-    // const finalCashAmount = paymentMode === "cash" ? finalPendingAmount : 0;
-let finalCashAmount = 0;
+    const finalPendingAmount = Math.max(totalAmount - finalOnlinePaid, 0);
 
-if (paymentMode === "cash") {
-  finalCashAmount = finalPendingAmount;
-} else {
-  finalCashAmount = 0;
-}
+    let finalCashAmount = 0;
 
+    if (paymentMode === "cash") {
+      finalCashAmount = finalPendingAmount;
+    } else {
+      finalCashAmount = 0;
+    }
 
-//-----------
+    // ── NOTE: yahan booking ALWAYS PENDING status ke saath banti hai,
+    // kyunki payment abhi verify nahi hui. Frontend flow: booking create
+    // (yahan) → razorpay order → payment → verifyPayment (neeche) jo
+    // CONFIRMED karta hai aur email/notification bhejta hai.
+    const booking = await Booking.create({
+      name,
+      phone,
+      email,
+      eventType,
+      customEvent,
+      days,
+      startDate,
+      endDate,
+      location,
+      bookingFor,
+      paggMembers,
+      paggStyle,
+      paggTime,
+      preferredTime,
+      formId,
+      paymentId,
+      orderId,
+      paymentStatus: paymentStatus || "PENDING",
+      totalPrice,
+      totalAmount,
 
-const booking = await Booking.create({
-  name,
-  phone,
-  email,
-  eventType,
-  customEvent,
-  days,
-  startDate,
-  endDate,
-  location,
-  bookingFor,
-  paggMembers,
-  paggStyle,
-  paggTime,
-  preferredTime,
-  formId,
-  paymentId,
-  orderId,
-  paymentStatus: paymentStatus || "SUCCESS",
-  totalPrice,
-  totalAmount,
+      bookingStatus: "PENDING",
 
-  // ── FIX: bookingStatus set karo agar payment already success hai ──
-  bookingStatus: (paymentId && (paymentStatus || "SUCCESS") === "SUCCESS") 
-    ? "CONFIRMED" 
-    : "PENDING",
+      // ── NEW FIELDS ──
+      paidAmount,
+      paymentMode,
+      travelCharge: travelCharge || 0,
+      travelChargeIncludedOnline: travelChargeIncludedOnline || false,
+      travelChargePaymentStatus: travelChargePaymentStatus || "PAY_LATER",
+      distanceKm: distanceKm || 0,
 
-  // ── NEW FIELDS ──
-  paidAmount,
-  paymentMode,
-  travelCharge: travelCharge || 0,
-  travelChargeIncludedOnline: travelChargeIncludedOnline || false,
-  travelChargePaymentStatus: travelChargePaymentStatus || "PAY_LATER",
-  distanceKm: distanceKm || 0,
+      onlinePaid: finalOnlinePaid,
+      cashAmount: finalCashAmount,
+      pendingAmount: finalPendingAmount,
+    });
 
-  onlinePaid: finalOnlinePaid,
-  cashAmount: finalCashAmount,
-  pendingAmount: finalPendingAmount,
-});
-    // EMAIL
+    // ❌ EMAIL YAHAN SE HATA DIYA GAYA —
+    // ab email sirf verifyPayment mein bhejenge, jab payment actually
+    // verify ho jaye. Isse "payment fail phir bhi confirmation mil gayi"
+    // wala issue solve ho jata hai.
+
+    return res.status(201).json({
+      success: true,
+      message: "Booking Created Successfully",
+      booking,
+    });
+  } catch (error) {
+    console.error("CREATE BOOKING ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ================= GET BOOKINGS =================
+export const getBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find();
+    res.status(200).json({ success: true, bookings });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ================= GET SINGLE BOOKING BY ID =================
+export const getBookingById = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    res.status(200).json({ success: true, booking });
+  } catch (error) {
+    console.error("GET BOOKING BY ID ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const generateFormId = () => {
+  return `FORM-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().split("-")[0].toUpperCase()}`;
+};
+
+// ================= CREATE ORDER =================
+export const createOrder = async (req, res) => {
+  try {
+    const { amount, receipt } = req.body;
+    const formId = receipt || generateFormId(); // ✅ frontend ka formId use karo, naya mat banao
+
+    const order = await razorpay.orders.create({
+      amount: amount * 100,
+      currency: "INR",
+      receipt: formId,
+      notes: { formId, booking_id: formId },
+    });
+
+    res.status(200).json({ success: true, formId, order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ================= VERIFY PAYMENT =================
+export const verifyPayment = async (req, res) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      formId,
+    } = req.body;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment Verification Failed",
+      });
+    }
+
+    // 🔥 Booking ko CONFIRMED update karo — payment genuinely verify ho chuki hai
+    const booking = await Booking.findOneAndUpdate(
+      { formId },
+      {
+        $set: {
+          paymentId: razorpay_payment_id,
+          orderId: razorpay_order_id,
+          paymentStatus: "SUCCESS",
+          bookingStatus: "CONFIRMED",
+onlinePaid: booking.onlinePaid || booking.totalAmount,
+          pendingAmount: 0,
+        },
+      },
+      { new: true },
+    );
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    // ✅ EMAIL AB YAHAN — sirf payment verify hone ke BAAD hi jayegi
     try {
       await sendUserConfirmationEmail({
-        to: email,
+        to: booking.email,
         name: booking.name,
         bookingId: booking._id,
 
@@ -179,133 +299,20 @@ const booking = await Booking.create({
       console.log("Email error:", emailErr);
     }
 
-    return res.status(201).json({
-      success: true,
-      message: "Booking Created Successfully",
-      booking,
-    });
-  } catch (error) {
-    console.error("CREATE BOOKING ERROR:", error);
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// ================= GET BOOKINGS =================
-export const getBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find();
-    res.status(200).json({ success: true, bookings });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// ================= GET SINGLE BOOKING BY ID =================
-export const getBookingById = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id);
-
-    if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: "Booking not found",
-      });
-    }
-
-    res.status(200).json({ success: true, booking });
-  } catch (error) {
-    console.error("GET BOOKING BY ID ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-const generateFormId = () => {
-  return `FORM-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().split("-")[0].toUpperCase()}`;
-};
-
-// ================= CREATE ORDER =================
-export const createOrder = async (req, res) => {
-  try {
-    const { amount } = req.body;
-    const formId = generateFormId();
-
-    const order = await razorpay.orders.create({
-      amount: amount * 100,
-      currency: "INR",
-      receipt: formId,
-      notes: { formId, booking_id: formId },
-    });
-
-    res.status(200).json({ success: true, formId, order });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// ================= VERIFY PAYMENT =================
-export const verifyPayment = async (req, res) => {
-  try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      formId
-    } = req.body;
-
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(razorpay_order_id + "|" + razorpay_payment_id)
-      .digest("hex");
-
-    if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment Verification Failed"
-      });
-    }
-
-    // 🔥 IMPORTANT: UPDATE BOOKING HERE
-    const booking = await Booking.findOneAndUpdate(
-      { formId },
-      {
-        paymentId: razorpay_payment_id,
-        orderId: razorpay_order_id,
-        paymentStatus: "SUCCESS",
-        bookingStatus: "CONFIRMED"
-      },
-      { new: true }
-    );
-
-    if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: "Booking not found"
-      });
-    }
-
     return res.status(200).json({
       success: true,
       message: "Payment Verified + Booking Updated",
-      booking
+      booking,
     });
-
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
-// ================= CALCULATE DISTANCE =================
 // ================= CALCULATE DISTANCE =================
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   const R = 6371; // Radius of Earth in KM
@@ -340,7 +347,7 @@ export const calculateDistance = async (req, res) => {
       officeLat,
       officeLon,
       Number(lat),
-      Number(lon)
+      Number(lon),
     );
 
     // Dashboard wali pricing load karo
@@ -358,7 +365,7 @@ export const calculateDistance = async (req, res) => {
 
     if (distanceKm > freeTravelKm) {
       distanceCharge = Math.round(
-        (distanceKm - freeTravelKm) * travelPricePerKm
+        (distanceKm - freeTravelKm) * travelPricePerKm,
       );
     }
 

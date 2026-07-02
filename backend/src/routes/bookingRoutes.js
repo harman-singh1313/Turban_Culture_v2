@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-router.post("/bookings", createBooking);
+router.post("/", createBooking);
 router.get("/bookings", getBookings);
 
 router.post("/create-order", createOrder);

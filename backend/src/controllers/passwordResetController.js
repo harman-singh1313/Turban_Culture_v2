@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import PasswordReset from "../models/passwordResetModel.js";
 import Admin from "../models/adminModel.js";
 export const forgotPassword = async (req, res) => {
