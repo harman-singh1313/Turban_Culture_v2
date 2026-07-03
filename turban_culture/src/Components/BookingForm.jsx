@@ -171,7 +171,7 @@ const [pricingBreakdown, setPricingBreakdown] = useState(null);
   useEffect(() => {
     const fetchPricing = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/pricing?t=${Date.now()}`);
+        const res = await axios.get(`${API_URL}/pricing?t=${Date.now()}`);
 
         const p = res.data.pricing;
         setPricing({

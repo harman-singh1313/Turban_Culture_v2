@@ -45,9 +45,9 @@ app.use("/api/payment", paymentRouter);
 app.use("/api/receipts", receiptRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin-bookings",adminBookingRouters);
-app.use("/api/pricing", pricingRoutes);
+app.use("/pricing", pricingRoutes);
 app.use("/api/reviews", reviewRoutes);
-app.use("/api/gallery", galleryRoutes);
+app.use("/gallery", galleryRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api",sliderRoutes)

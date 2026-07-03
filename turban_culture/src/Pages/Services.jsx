@@ -21,7 +21,7 @@ const Services = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-const res = await axios.get(`${API_URL}/api/pricing`)
+const res = await axios.get(`${API_URL}/pricing`)
         const packages = res.data?.pricing?.packages
         if (!packages) return
         const activePackages = packages.filter(p => p.isActive)
