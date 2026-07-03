@@ -35,10 +35,31 @@ const Slider = () => {
 
         const res = await axios.get(`${API_URL}/slider`);
 
-        setSlides(res.data);
+        // Backend might return a raw array, or wrap it like
+        // { data: [...] } / { slides: [...] } / { result: [...] }.
+        // Handle all of those so this doesn't break either way.
+        const raw = res.data;
+        const list = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw?.slides)
+          ? raw.slides
+          : Array.isArray(raw?.result)
+          ? raw.result
+          : [];
+
+        if (list.length === 0 && !Array.isArray(raw)) {
+          console.warn(
+            "Slider: couldn't find an array in the response, got:",
+            raw
+          );
+        }
+
+        setSlides(list);
 
         // Preload images
-        res.data.forEach((slide) => {
+        list.forEach((slide) => {
           const img = new Image();
           img.src = slide.imageUrl;
         });

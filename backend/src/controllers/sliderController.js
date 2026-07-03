@@ -9,40 +9,43 @@ export const getSliders = async (req, res) => {
     console.error(err);
 
     res.status(500).json({
-        success: false,
-        message: err.message,
+      success: false,
+      message: err.message,
     });
-}
+  }
 };
 
 // CREATE
 export const createSlider = async (req, res) => {
   try {
-  const imageUrl = req.file?.path || req.body.imageUrl;
+    const imageUrl = req.file?.path || req.body.imageUrl;
 
-if (!imageUrl) {
-    return res.status(400).json({
+    if (!imageUrl) {
+      return res.status(400).json({
         success: false,
         message: "Image is required",
-    });
-}
+      });
+    }
 
-const slide = await Slider.create({
-    imageUrl,
-    title: req.body.title || "",
-    order: Number(req.body.order) || 1,
-    active: true,
-});
+    const slide = await Slider.create({
+      imageUrl,
+      title: req.body.title || "",
+      subtitle: req.body.subtitle || "",
+      rating: req.body.rating !== undefined ? Number(req.body.rating) : undefined,
+      logoUrl: req.body.logoUrl || "",
+      order: Number(req.body.order) || 1,
+      active: true,
+    });
 
     res.json(slide);
   } catch (err) {
     console.error(err);
 
     res.status(500).json({
-        success: false,
-        message: err.message,
+      success: false,
+      message: err.message,
     });
-}
+  }
 };
 
 // DELETE
@@ -54,8 +57,8 @@ export const deleteSlider = async (req, res) => {
     console.error(err);
 
     res.status(500).json({
-        success: false,
-        message: err.message,
+      success: false,
+      message: err.message,
     });
-}
+  }
 };

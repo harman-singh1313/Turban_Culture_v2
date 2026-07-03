@@ -12,6 +12,20 @@ const sliderSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    subtitle: {
+      type: String,
+      default: "", // e.g. "2020-2023 · 3 Seasons"
+      trim: true,
+    },
+    rating: {
+      type: Number,
+      min: 0,
+      max: 10,
+    },
+    logoUrl: {
+      type: String,
+      default: "", // small network/provider badge shown top-left on the card
+    },
     order: {
       type: Number,
       default: 1,
