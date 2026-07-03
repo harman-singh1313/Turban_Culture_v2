@@ -19,7 +19,7 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, {
+      const res = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
       });
@@ -46,7 +46,7 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post(`${API_URL}/api/auth/verify-otp`, {
+      const res = await axios.post(`${API_URL}/auth/verify-otp`, {
         email,
         otp,
       });
@@ -72,7 +72,7 @@ const AdminLogin = () => {
 
     try {
       const res = await axios.post(
-        `${API_URL}/api/auth/forgot-password`,
+        `${API_URL}/auth/forgot-password`,
         { email }
       );
 

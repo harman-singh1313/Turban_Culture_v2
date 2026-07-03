@@ -15,7 +15,7 @@ const Slider = () => {
       try {
         setLoading(true);
 
-        const res = await axios.get(`${API_URL}/api/slider`);
+        const res = await axios.get(`${API_URL}/slider`);
 
         setSlides(res.data);
 

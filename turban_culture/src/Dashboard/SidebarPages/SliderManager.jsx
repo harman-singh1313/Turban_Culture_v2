@@ -13,7 +13,7 @@ const SliderManager = () => {
   // ================= GET SLIDES =================
   const fetchSlides = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/slider`);
+      const res = await axios.get(`${API_URL}/slider`);
       setSlides(res.data);
     } catch (err) {
       console.error("Fetch slider error:", err);
@@ -53,7 +53,7 @@ const SliderManager = () => {
       const formData = new FormData();
       formData.append("image", selectedImage);
 
-      await axios.post(`${API_URL}/api/slider`, formData, {
+      await axios.post(`${API_URL}/slider`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -88,7 +88,7 @@ const SliderManager = () => {
     try {
       const token = localStorage.getItem("adminToken");
 
-      await axios.delete(`${API_URL}/api/slider/${id}`, {
+      await axios.delete(`${API_URL}/slider/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

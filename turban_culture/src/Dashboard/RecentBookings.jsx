@@ -24,7 +24,7 @@ const RecentBookings = () => {
   useEffect(() => {
     const loadRecent = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/dashboard/recent`);
+        const res = await axios.get(`${API_URL}/dashboard/recent`);
 
         if (res.data.success) {
           setBookings(res.data.bookings);
@@ -39,7 +39,7 @@ const RecentBookings = () => {
 
   const handleViewAll = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/dashboard/all-bookings`);
+      const res = await axios.get(`${API_URL}/dashboard/all-bookings`);
 
       if (res.data.success) {
         setAllBookings(res.data.bookings);

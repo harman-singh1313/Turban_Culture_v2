@@ -16,7 +16,7 @@ const AdminBookings = () => {
 
   const fetchBookings = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/admin-bookings/all`);
+      const res = await axios.get(`${API_URL}/admin-bookings/all`);
       setBookings(res.data.bookings || []);
     } catch (error) {
       console.log("Booking Fetch Error:", error);
@@ -26,7 +26,7 @@ const AdminBookings = () => {
   const deleteBooking = async (id) => {
     if (!window.confirm("Are you sure you want to delete this booking?")) return;
     try {
-      await axios.delete(`${API_URL}/api/admin-bookings/${id}`);
+      await axios.delete(`${API_URL}/admin-bookings/${id}`);
       fetchBookings();
     } catch (error) {
       console.log("Delete Error:", error);
@@ -35,7 +35,7 @@ const AdminBookings = () => {
 
   const markAsDone = async (id) => {
     try {
-      await axios.put(`${API_URL}/api/admin-bookings/status/${id}`, {
+      await axios.put(`${API_URL}/admin-bookings/status/${id}`, {
   bookingStatus: "DONE"
 });
 
