@@ -18,7 +18,7 @@ const GalleryManager = () => {
   const fetchGallery = async () => {
     try {
      const res = await axios.get(
-  `${API_URL}/gallery`
+  `${API_URL}/api/gallery`
 );
 
 setGallery(res.data.images || []);
@@ -60,7 +60,7 @@ setGallery(res.data.images || []);
       formData.append("image", selectedImages[0]);
 
 await axios.post(
-  `${API_URL}/gallery`,
+  `${API_URL}/api/gallery`,
   formData,
         {
           headers: {
@@ -99,7 +99,7 @@ await axios.post(
       const token = localStorage.getItem("adminToken");
 
      await axios.delete(
-  `${API_URL}/gallery/${id}`,
+  `${API_URL}/api/gallery/${id}`,
   
         {
           headers: {

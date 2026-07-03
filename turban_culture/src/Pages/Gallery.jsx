@@ -14,7 +14,7 @@ const [loading, setLoading] = useState(true)
     const fetchGallery = async () => {
       try {
         const res = await axios.get(
-          `${API_URL}/gallery`
+          `${API_URL}/api/gallery`
         )
 
         const images = res.data.images.map(

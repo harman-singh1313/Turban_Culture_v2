@@ -158,7 +158,7 @@ const QuickBookingForm = ({ selectedPackage, onClose }) => {
     if (query.length < 3) { setLocationSuggestions([]); return; }
     debounceRef.current = setTimeout(async () => {
       try {
-const res  = await fetch(`${API_URL}/location?q=${encodeURIComponent(query)}`);
+const res  = await fetch(`${API_URL}/api/location?q=${encodeURIComponent(query)}`);
         const data = await res.json();
         setLocationSuggestions(data);
       } catch (error) {
@@ -170,7 +170,7 @@ const res  = await fetch(`${API_URL}/location?q=${encodeURIComponent(query)}`);
   // ── Distance fetch — just store raw km/charge, no math ──
   const calculateDistance = async (lat, lon) => {
     try {
-const res = await axios.post(`${API_URL}/distance`, { lat, lon });
+const res = await axios.post(`${API_URL}/api/distance`, { lat, lon });
       setDistanceCharge(res.data.distanceCharge);
       setDistanceKm(res.data.distanceKm || 0);
       setIncludeTravelOnline(false);
@@ -192,7 +192,7 @@ const res = await axios.post(`${API_URL}/distance`, { lat, lon });
 
     try {
       // Backend returns full breakdown — no math on frontend
-const res = await axios.post(`${API_URL}/quick-bookings/calc-price`, {
+const res = await axios.post(`${API_URL}/api/quick-bookings/calc-price`, {
           packagePrice,
         distanceCharge,
         includeTravelOnline,
@@ -213,7 +213,7 @@ const res = await axios.post(`${API_URL}/quick-bookings/calc-price`, {
     try {
       setLoading(true);
 
-const { data } = await axios.post(`${API_URL}/create-order`, {
+const { data } = await axios.post(`${API_URL}/api/create-order`, {
           amount:  amountToPay,
         receipt: formData.formId,
       });
@@ -227,7 +227,7 @@ const { data } = await axios.post(`${API_URL}/create-order`, {
         order_id:    data.order.id,
 
         handler: async function (response) {
-const verifyRes = await axios.post(`${API_URL}/quick-bookings/verify-payment`, {
+const verifyRes = await axios.post(`${API_URL}/api/quick-bookings/verify-payment`, {
               razorpay_order_id:   response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature:  response.razorpay_signature,
@@ -248,7 +248,7 @@ const verifyRes = await axios.post(`${API_URL}/quick-bookings/verify-payment`, {
             paymentStatus:        "SUCCESS",
           };
 
-const bookingRes = await axios.post(`${API_URL}/quick-bookings`, bookingData);
+const bookingRes = await axios.post(`${API_URL}/api/quick-bookings`, bookingData);
           const booking    = bookingRes.data.booking;
 
           navigate("/receipt", {

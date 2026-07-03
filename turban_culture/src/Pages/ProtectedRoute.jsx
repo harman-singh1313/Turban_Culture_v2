@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
       if (!token) { navigate("/admin/login"); return; }
 
       try {
-        await axios.get(`${API_URL}/auth/verify`, {
+        await axios.get(`${API_URL}/api/auth/verify`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setValid(true);

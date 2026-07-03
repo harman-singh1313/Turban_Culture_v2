@@ -171,7 +171,7 @@ const [pricingBreakdown, setPricingBreakdown] = useState(null);
   useEffect(() => {
     const fetchPricing = async () => {
       try {
-        const res = await axios.get(`${API_URL}/pricing?t=${Date.now()}`);
+        const res = await axios.get(`${API_URL}/api/pricing?t=${Date.now()}`);
 
         const p = res.data.pricing;
         setPricing({
@@ -243,7 +243,7 @@ const [pricingBreakdown, setPricingBreakdown] = useState(null);
     if (query.length < 3) { setLocationSuggestions([]); return; }
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`${API_URL}/location?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`${API_URL}/api/location?q=${encodeURIComponent(query)}`);
         const data = await res.json();
         setLocationSuggestions(data);
       } catch (error) {
@@ -256,7 +256,7 @@ const [pricingBreakdown, setPricingBreakdown] = useState(null);
   // ✅ FIX: calculateDistance backend response use karda hai — fresh values mildi ne
   const calculateDistance = async (lat, lon) => {
     try {
-      const res = await axios.post(`${API_URL}/distance`, { lat, lon });
+      const res = await axios.post(`${API_URL}/api/distance`, { lat, lon });
 
       console.log("DISTANCE API RESPONSE =", res.data);
 
@@ -353,7 +353,7 @@ const handlePayConfirm = async (mode, amountFromModal) => {
     setLoading(true);
 
     // ✅ STEP 1: Booking pehle hi bana do (PENDING status)
-const bookingRes = await axios.post(`${API_URL}/bookings`, {
+const bookingRes = await axios.post(`${API_URL}/api/bookings`, {
   formId: formData.formId,
   name: formData.name,
   phone: formData.phone,
@@ -382,7 +382,7 @@ const bookingRes = await axios.post(`${API_URL}/bookings`, {
     const bookingId = bookingRes.data.booking._id;
 
     // ✅ STEP 2: Order create karo
-const orderRes = await axios.post(`${API_URL}/bookings/create-order`, {
+const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
         amount: amountToPay,
       receipt: formData.formId,
     });
@@ -398,7 +398,7 @@ const orderRes = await axios.post(`${API_URL}/bookings/create-order`, {
       handler: async function (response) {
         try {
           const verifyRes = await axios.post(
-            `${API_URL}/bookings/verify-payment`,
+            `${API_URL}/api/bookings/verify-payment`,
             {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
