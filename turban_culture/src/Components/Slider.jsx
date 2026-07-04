@@ -33,7 +33,7 @@ const Slider = () => {
       try {
         setLoading(true);
 
-        const res = await axios.get(`${API_URL}/slider`);
+        const res = await axios.get(`${API_URL}/api/slider`);
 
         // Backend might return a raw array, or wrap it like
         // { data: [...] } / { slides: [...] } / { result: [...] }.

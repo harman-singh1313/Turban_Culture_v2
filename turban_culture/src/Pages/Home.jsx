@@ -51,7 +51,7 @@ const Home = () => {
   const [myImages, setMyImages] = useState([]);
   useEffect(() => {
     const fetchGallery = async () => {
-      const res = await axios.get(`${API_URL}/gallery`)
+      const res = await axios.get(``${API_URL}/api/gallery``)
    const images = res.data?.images?.map(
   (item) => item.imageUrl
 ) || [];
