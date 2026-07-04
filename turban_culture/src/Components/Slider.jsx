@@ -9,6 +9,9 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
  * optional — if your backend doesn't send them yet, the card just hides
  * that piece, so nothing breaks.
  *
+ * Now fully mobile responsive: card size, arrow size, offsets and font
+ * sizes all scale down on small screens using a live window-width tracker.
+ *
  * Expected slide shape (only imageUrl + title are required):
  * {
  *   _id: string,
@@ -26,6 +29,42 @@ const Slider = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const timerRef = useRef(null);
+
+  // ================= RESPONSIVE WIDTH TRACKING =================
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1200
+  );
+
+  useEffect(() => {
+    let raf;
+    const handleResize = () => {
+      // rAF-throttle so we don't thrash state on every resize tick
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setWindowWidth(window.innerWidth));
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  const isMobile = windowWidth <= 640;
+  const isTablet = windowWidth > 640 && windowWidth <= 1024;
+
+  // Breakpoint-driven values
+  const cardWidthPct = isMobile ? 62 : isTablet ? 46 : 34;
+  const cardMaxWidth = isMobile ? 240 : isTablet ? 280 : 320;
+  const offsetStep = isMobile ? 78 : isTablet ? 68 : 62;
+  const inactiveScale = isMobile ? 0.82 : 0.8;
+  const visibleRange = isMobile ? 1 : 2; // fewer neighbor cards on mobile so it doesn't feel cramped
+  const arrowSize = isMobile ? 32 : 40;
+  const arrowFontSize = isMobile ? 18 : 24;
+  const arrowInset = isMobile ? 6 : 16;
+  const dotBottom = isMobile ? 12 : 20;
+  const titleFontSize = isMobile ? 14 : 17;
+  const subtitleFontSize = isMobile ? 10 : 12;
+  const ratingFontSize = isMobile ? 11 : 13;
 
   // ================= FETCH SLIDES =================
   useEffect(() => {
@@ -100,6 +139,26 @@ const Slider = () => {
   const goPrev = () => goTo(current - 1);
   const goNext = () => goTo(current + 1);
 
+  // ================= SWIPE SUPPORT (mobile) =================
+  const touchStartX = useRef(null);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const SWIPE_THRESHOLD = 40;
+
+    if (deltaX > SWIPE_THRESHOLD) {
+      goPrev();
+    } else if (deltaX < -SWIPE_THRESHOLD) {
+      goNext();
+    }
+    touchStartX.current = null;
+  };
+
   // ================= LOADING =================
   if (loading) {
     return (
@@ -123,8 +182,14 @@ const Slider = () => {
   }
 
   return (
-    <div style={styles.wrapper}>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <div
+      style={styles.wrapper}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
       {/* Ambient glow behind the active card */}
       <div
         style={{
@@ -142,7 +207,7 @@ const Slider = () => {
           const abs = Math.abs(offset);
 
           // hide cards that are far away so the row doesn't get crowded
-          if (abs > 2) return null;
+          if (abs > visibleRange) return null;
 
           return (
             <div
@@ -150,11 +215,13 @@ const Slider = () => {
               onClick={() => goTo(index)}
               style={{
                 ...styles.card,
-                transform: `translateX(${offset * 62}%) scale(${
-                  isActive ? 1 : 0.8
+                width: `${cardWidthPct}%`,
+                maxWidth: cardMaxWidth,
+                transform: `translateX(${offset * offsetStep}%) scale(${
+                  isActive ? 1 : inactiveScale
                 })`,
                 zIndex: isActive ? 5 : 5 - abs,
-                opacity: abs > 2 ? 0 : 1,
+                opacity: abs > visibleRange ? 0 : 1,
                 filter: isActive ? "none" : "brightness(0.55)",
                 cursor: isActive ? "default" : "pointer",
               }}
@@ -170,20 +237,42 @@ const Slider = () => {
               <div style={styles.cardShade} />
 
               {slide.logoUrl && (
-                <img src={slide.logoUrl} alt="" style={styles.logoBadge} />
+                <img
+                  src={slide.logoUrl}
+                  alt=""
+                  style={{
+                    ...styles.logoBadge,
+                    height: isMobile ? 14 : 18,
+                  }}
+                />
               )}
 
               {slide.rating && (
-                <div style={styles.ratingBadge}>
+                <div
+                  style={{
+                    ...styles.ratingBadge,
+                    fontSize: ratingFontSize,
+                    padding: isMobile ? "2px 6px" : "3px 8px",
+                  }}
+                >
                   <span style={styles.star}>★</span>
                   {slide.rating}
                 </div>
               )}
 
               <div style={styles.cardText}>
-                <h2 style={styles.cardTitle}>{slide.title}</h2>
+                <h2 style={{ ...styles.cardTitle, fontSize: titleFontSize }}>
+                  {slide.title}
+                </h2>
                 {slide.subtitle && (
-                  <p style={styles.cardSubtitle}>{slide.subtitle}</p>
+                  <p
+                    style={{
+                      ...styles.cardSubtitle,
+                      fontSize: subtitleFontSize,
+                    }}
+                  >
+                    {slide.subtitle}
+                  </p>
                 )}
               </div>
             </div>
@@ -194,28 +283,41 @@ const Slider = () => {
       {/* Prev / Next arrows */}
       <button
         onClick={goPrev}
-        style={{ ...styles.arrow, left: 16 }}
+        style={{
+          ...styles.arrow,
+          left: arrowInset,
+          width: arrowSize,
+          height: arrowSize,
+          fontSize: arrowFontSize,
+        }}
         aria-label="Previous slide"
       >
         ‹
       </button>
       <button
         onClick={goNext}
-        style={{ ...styles.arrow, right: 16 }}
+        style={{
+          ...styles.arrow,
+          right: arrowInset,
+          width: arrowSize,
+          height: arrowSize,
+          fontSize: arrowFontSize,
+        }}
         aria-label="Next slide"
       >
         ›
       </button>
 
       {/* Dots */}
-      <div style={styles.dots}>
+      <div style={{ ...styles.dots, bottom: dotBottom }}>
         {slides.map((slide, index) => (
           <div
             key={slide._id ?? index}
             onClick={() => goTo(index)}
             style={{
               ...styles.dot,
-              width: current === index ? 20 : 8,
+              width: current === index ? (isMobile ? 16 : 20) : isMobile ? 6 : 8,
+              height: isMobile ? 6 : 8,
               background:
                 current === index ? "#fff" : "rgba(255,255,255,0.4)",
             }}
@@ -235,6 +337,7 @@ const styles = {
     background: "#000",
     fontFamily:
       "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    touchAction: "pan-y",
   },
   stateScreen: {
     height: "100vh",
@@ -245,6 +348,8 @@ const styles = {
     fontSize: 20,
     background: "#0b0b0d",
     color: "#eee",
+    padding: "0 16px",
+    textAlign: "center",
   },
   spinner: {
     width: 34,
@@ -279,13 +384,11 @@ const styles = {
   },
   card: {
     position: "absolute",
-    width: "34%",
-    maxWidth: 320,
     aspectRatio: "2 / 3",
     borderRadius: 14,
     overflow: "hidden",
     boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
-    transition: "transform 0.5s cubic-bezier(.22,.9,.35,1), filter 0.5s ease",
+    transition: "transform 0.5s cubic-bezier(.22,.9,.35,1), filter 0.5s ease, width 0.2s ease",
   },
   cardImage: {
     width: "100%",
@@ -304,7 +407,6 @@ const styles = {
     position: "absolute",
     top: 10,
     left: 10,
-    height: 18,
     filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))",
   },
   ratingBadge: {
@@ -313,9 +415,7 @@ const styles = {
     right: 10,
     background: "rgba(0,0,0,0.55)",
     color: "#fff",
-    fontSize: 13,
     fontWeight: 600,
-    padding: "3px 8px",
     borderRadius: 20,
     display: "flex",
     alignItems: "center",
@@ -331,13 +431,11 @@ const styles = {
     color: "#fff",
   },
   cardTitle: {
-    fontSize: 17,
     fontWeight: 600,
     margin: 0,
     lineHeight: 1.25,
   },
   cardSubtitle: {
-    fontSize: 12,
     margin: "4px 0 0",
     color: "rgba(255,255,255,0.75)",
   },
@@ -345,13 +443,10 @@ const styles = {
     position: "absolute",
     top: "50%",
     transform: "translateY(-50%)",
-    width: 40,
-    height: 40,
     borderRadius: "50%",
     border: "none",
     background: "rgba(255,255,255,0.12)",
     color: "#fff",
-    fontSize: 24,
     lineHeight: 0,
     cursor: "pointer",
     zIndex: 10,
@@ -359,7 +454,6 @@ const styles = {
   },
   dots: {
     position: "absolute",
-    bottom: 20,
     left: "50%",
     transform: "translateX(-50%)",
     display: "flex",
@@ -367,7 +461,6 @@ const styles = {
     zIndex: 10,
   },
   dot: {
-    height: 8,
     borderRadius: 4,
     cursor: "pointer",
     transition: "all 0.3s",

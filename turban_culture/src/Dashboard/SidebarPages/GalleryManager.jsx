@@ -17,11 +17,11 @@ const GalleryManager = () => {
   // ==========================================
   const fetchGallery = async () => {
     try {
-     const res = await axios.get(
-  `${API_URL}/api/gallery`
-);
+      const res = await axios.get(
+        `${API_URL}/api/gallery`
+      );
 
-setGallery(res.data.images || []);
+      setGallery(res.data.images || []);
     } catch (error) {
       console.error("Fetch Gallery Error:", error);
     }
@@ -59,9 +59,9 @@ setGallery(res.data.images || []);
       // So upload one image at a time
       formData.append("image", selectedImages[0]);
 
-await axios.post(
-  `${API_URL}/api/gallery`,
-  formData,
+      await axios.post(
+        `${API_URL}/api/gallery`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -98,8 +98,8 @@ await axios.post(
     try {
       const token = localStorage.getItem("adminToken");
 
-     await axios.delete(
-  ``${API_URL}/api/gallery`/${id}`,
+      await axios.delete(
+        `${API_URL}/api/gallery/${id}`,
   
         {
           headers: {
