@@ -8,7 +8,6 @@ const videoStorage = new CloudinaryStorage({
     folder: "turban-culture-videos",
     resource_type: "video",
     allowed_formats: ["mp4", "mov", "avi", "mkv", "webm"],
-     timeout: 120000 // optional but helpful
   },
 });
 

@@ -75,8 +75,7 @@ const App = () => {
             <Route path="services" element={<AdminServices />} />
             <Route path="galleryManager" element={<GalleryManager />} />
             <Route path="sliderManager" element={<SliderManager />} />
-            <Route path="VedioManager" element={<VedioManager/>} />
-
+            <Route path="videoManager" element={<VedioManager />} />
           </Route>
 
           {/* RECEIPT */}
