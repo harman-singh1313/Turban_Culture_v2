@@ -3,16 +3,12 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/videos`;
 
-const SideBarVideo = ({
-  height = "250px",
-  speed = "12s",
-}) => {
+const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const videoRefs = useRef([]);
 
-  // FETCH
   useEffect(() => {
     const fetchVideos = async () => {
       try {
@@ -28,7 +24,6 @@ const SideBarVideo = ({
     fetchVideos();
   }, []);
 
-  // AUTOPLAY
   useEffect(() => {
     if (!videos.length) return;
 
@@ -52,7 +47,7 @@ const SideBarVideo = ({
 
   return (
     <div className="video-wrapper">
-      {/* TRACK (NO DOUBLE ARRAY) */}
+      {/* TRACK */}
       <div className="video-track">
         {videos.map((item, i) => (
           <div
@@ -72,16 +67,32 @@ const SideBarVideo = ({
         ))}
       </div>
 
-      {/* MODAL */}
+      {/* MODAL (FIXED) */}
       {selectedVideo && (
-        <div className="video-modal" onClick={() => setSelectedVideo(null)}>
-          <video
-            src={selectedVideo}
-            controls
-            autoPlay
-            className="modal-video"
+        <div
+          className="video-modal"
+          onClick={() => setSelectedVideo(null)}
+        >
+          {/* STOP PROP */}
+          <div
+            className="modal-box"
             onClick={(e) => e.stopPropagation()}
-          />
+          >
+            {/* ❌ CLOSE BUTTON */}
+            <button
+              className="close-btn"
+              onClick={() => setSelectedVideo(null)}
+            >
+              ✖
+            </button>
+
+            <video
+              src={selectedVideo}
+              controls
+              autoPlay
+              className="modal-video"
+            />
+          </div>
         </div>
       )}
 
@@ -124,6 +135,7 @@ const SideBarVideo = ({
           object-fit: cover;
         }
 
+        /* MODAL BACKGROUND */
         .video-modal {
           position: fixed;
           inset: 0;
@@ -134,16 +146,47 @@ const SideBarVideo = ({
           z-index: 9999;
         }
 
-        .modal-video {
+        /* BOX */
+        .modal-box {
+          position: relative;
           max-width: 95vw;
           max-height: 85vh;
+        }
+
+        .modal-video {
+          width: 100%;
+          height: auto;
           border-radius: 12px;
+        }
+
+        /* CLOSE BUTTON (IMPORTANT) */
+        .close-btn {
+          position: absolute;
+          top: -12px;
+          right: -12px;
+          background: white;
+          color: black;
+          border: none;
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          font-size: 18px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
         }
 
         @media (max-width: 768px) {
           .video-card {
             width: 130px;
             height: 180px;
+          }
+
+          .close-btn {
+            top: 10px;
+            right: 10px;
           }
         }
       `}</style>

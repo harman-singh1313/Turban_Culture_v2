@@ -96,52 +96,69 @@ const SidebarScroll = ({ images, height, speed, direction }) => {
       </div>
 
       {/* Fullscreen Modal */}
-      {selectedImg && (
-        <div
-          onClick={() => setSelectedImg(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.9)",
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "20px",
-          }}
-        >
-          <button
-            onClick={() => setSelectedImg(null)}
-            style={{
-              position: "absolute",
-              top: 20,
-              right: 24,
-              background: "rgba(255,255,255,0.15)",
-              border: "1px solid rgba(255,255,255,0.4)",
-              color: "#fff",
-              fontSize: 22,
-              width: 42,
-              height: 42,
-              borderRadius: "50%",
-              cursor: "pointer",
-            }}
-          >
-            ✕
-          </button>
+{/* Fullscreen Modal */}
+{selectedImg && (
+  <div
+    onClick={() => setSelectedImg(null)}
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.9)",
+      zIndex: 9999,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "20px",
+    }}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        position: "relative",
+        display: "inline-block",
+        maxWidth: "92vw",
+        maxHeight: "90vh",
+      }}
+    >
+      <button
+        onClick={() => setSelectedImg(null)}
+        aria-label="Close image"
+        style={{
+          position: "absolute",
+          top: "12px",
+          right: "12px",
+          width: "40px",
+          height: "40px",
+          borderRadius: "50%",
+          border: "none",
+          background: "rgba(0,0,0,0.65)",
+          color: "#fff",
+          fontSize: "24px",
+          fontWeight: "bold",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10,
+        }}
+      >
+        ✕
+      </button>
 
-          <img
-            src={selectedImg}
-            alt="full view"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: "92vw",
-              maxHeight: "90vh",
-              borderRadius: "14px",
-              objectFit: "contain",
-            }}
-          />
-        </div>
-      )}
+      <img
+        src={selectedImg}
+        alt="full view"
+        style={{
+          display: "block",
+          maxWidth: "92vw",
+          maxHeight: "90vh",
+          objectFit: "contain",
+          borderRadius: "14px",
+        }}
+      />
+    </div>
+  </div>
+)}
     </div>
   );
 };
