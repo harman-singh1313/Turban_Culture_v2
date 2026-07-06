@@ -4,7 +4,7 @@ import { FaTrash, FaUpload, FaVideo } from "react-icons/fa";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/videos`;
 
-const VedioManager = () => {
+const VideoManager = () => {
   const [video, setVideo] = useState(null);
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -156,4 +156,4 @@ const VedioManager = () => {
   );
 };
 
-export default VedioManager;
+export default VideoManager;

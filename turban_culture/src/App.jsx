@@ -24,7 +24,7 @@ const GalleryManager = lazy(() => import("./Dashboard/SidebarPages/GalleryManage
 const ProtectedRoute = lazy(() => import("./Pages/ProtectedRoute"));
 const ResetPassword = lazy(() => import("./Pages/ResetPassword"));
 const SliderManager = lazy(() => import("./Dashboard/SidebarPages/SliderManager"))
-const VedioManager = lazy(() => import("./Dashboard/SidebarPages/VedioManager"))
+const VideoManager = lazy(() => import("./Dashboard/SidebarPages/VideoManager"))
 /* ---------------- LAYOUT ---------------- */
 const Layout = () => (
   <>
@@ -75,7 +75,7 @@ const App = () => {
             <Route path="services" element={<AdminServices />} />
             <Route path="galleryManager" element={<GalleryManager />} />
             <Route path="sliderManager" element={<SliderManager />} />
-            <Route path="videoManager" element={<VedioManager />} />
+            <Route path="videoManager" element={<VideoManager />} />
           </Route>
 
           {/* RECEIPT */}

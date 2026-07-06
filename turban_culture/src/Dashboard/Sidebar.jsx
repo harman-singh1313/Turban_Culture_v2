@@ -40,7 +40,7 @@ const menuItems = [
      icon: ShoppingBag,
   },
   {
-    title:"Vedio Manager",
+    title:"Video Manager",
     path:"/admin/videoManager",
      icon: ShoppingBag,
   },
