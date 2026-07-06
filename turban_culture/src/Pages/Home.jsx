@@ -13,7 +13,7 @@ import axios from 'axios'
 import SidebarScroll from '../Components/SidebarScroll'
 import WhatsappChat from '../Components/whatsappChat'
 import LeadsForm from '../Components/LeadsForm'
-import SideBarVideo from '../Components/SideBarVideo'
+import SideBarVedio from '../Components/SideBarVideo'
 
 const API_URL = import.meta.env.VITE_API_URL || "http://3.27.155.171:5000";
 
@@ -144,7 +144,7 @@ const Home = () => {
         </div>
       </div>
 
-    <SideBarVideo/>
+    <SideBarVedio/>
 
       {/* Services Section - IMPROVED */}
       <div className='bg-gradient-to-b from-white to-[#fdfaf6] p-5'>
