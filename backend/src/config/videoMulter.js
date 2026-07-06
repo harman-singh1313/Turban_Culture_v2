@@ -8,9 +8,13 @@ const videoStorage = new CloudinaryStorage({
     folder: "turban-culture-videos",
     resource_type: "video",
     allowed_formats: ["mp4", "mov", "avi", "mkv", "webm"],
+     timeout: 120000 // optional but helpful
   },
 });
 
 export const uploadVideo = multer({
   storage: videoStorage,
+   limits: {
+    fileSize: 200 * 1024 * 1024 // 200MB
+  }
 });
