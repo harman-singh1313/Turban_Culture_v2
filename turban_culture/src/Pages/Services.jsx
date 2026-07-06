@@ -62,7 +62,7 @@ const res = await axios.get(`${API_URL}/api/pricing`)
 
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 max-w-6xl mx-auto px-4 mb-20'>
         {packagesData.length === 0 ? (
-          <p className="text-gray-400 text-sm col-span-3 text-center">Koi package available nahi hai abhi.</p>
+          <p className="text-gray-400 text-sm col-span-3 text-center">Something Royal is on Its Way. Stay Tuned</p>
         ) : (
           packagesData.map((pkg) => (
             <PackagesCard
@@ -86,10 +86,10 @@ const res = await axios.get(`${API_URL}/api/pricing`)
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto px-15 lg:px-0">
-        <ServiceCard image={turban1} title="Groom Special" description="The ultimate royal experience. Includes fabric selection guidance and a dedicated session for the perfect turban" />
-        <ServiceCard image={turban2} title="Groom Special" description="The ultimate royal experience. Includes fabric selection guidance and a dedicated session for the perfect turban" />
-        <ServiceCard image={turban3} title="Groom Special" description="The ultimate royal experience. Includes fabric selection guidance and a dedicated session for the perfect turban" />
-        <ServiceCard image={turban4} title="Groom Special" description="The ultimate royal experience. Includes fabric selection guidance and a dedicated session for the perfect turban" />
+        <ServiceCard image={turban1} title="Groom Special" description="Discover our handcrafted Punjabi wedding turban styles, designed to bring elegance, tradition, and a royal touch to every celebration." />
+        <ServiceCard image={turban2} title="Groom Special" description="TEvery turban is tied with precision, blending timeless Punjabi heritage with modern elegance for your special day." />
+        <ServiceCard image={turban3} title="Groom Special" description="Explore our collection of premium wedding turban styles, carefully crafted to complement every groom's personality and attire." />
+        <ServiceCard image={turban4} title="Groom Special" description="From classic Punjabi looks to contemporary royal styles, each design is created to make your wedding appearance unforgettable." />
       </div>
 
       <div className='p-10 text-center'>
@@ -99,10 +99,10 @@ const res = await axios.get(`${API_URL}/api/pricing`)
           Luxury safa styling crafted to make every groom look confident, royal, and distinguished.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto px-4">
-          <ServiceCard image={lehriya} title="Groom Special" description="The ultimate royal experience. Includes fabric selection guidance and a dedicated session for the perfect turban" />
-          <ServiceCard image={jodpuri} title="Groom Special" description="The ultimate royal experience. Includes fabric selection guidance and a dedicated session for the perfect turban" />
-          <ServiceCard image={jodpuri_safa} title="Groom Special" description="The ultimate royal experience. Includes fabric selection guidance and a dedicated session for the perfect turban" />
-          <ServiceCard image={jodpuri2} title="Groom Special" description="The ultimate royal experience. Includes fabric selection guidance and a dedicated session for the perfect turban" />
+          <ServiceCard image={lehriya} title="Groom Special" description="Celebrate your special day with elegant Hindu wedding turban styles, crafted with precision and tradition. Every style reflects timeless grace, cultural heritage, and a royal finish." />
+          <ServiceCard image={jodpuri} title="Groom Special" description="Discover premium Jodhpuri Safa styling, where timeless craftsmanship meets royal elegance for weddings and grand occasions." />
+          <ServiceCard image={jodpuri_safa} title="Groom Special" description="Inspired by the grandeur of Rajput royalty, our Jodhpuri Safas are tied with expert craftsmanship. Perfect for weddings, receptions, and every grand celebration." />
+          <ServiceCard image={jodpuri2} title="Groom Special" description="From sacred ceremonies to grand celebrations, every style is tied with precision and pride" />
         </div>
       </div>
 

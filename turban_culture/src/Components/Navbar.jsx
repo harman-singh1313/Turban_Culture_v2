@@ -14,7 +14,7 @@ const Navbar = () => {
   }, [location.pathname])
 
   return (
-    <div className='fixed top-0 left-0 w-full bg-[#fdfaf6]/95 backdrop-blur-md z-50 border-b border-[#c9913a]/15 shadow-sm'>
+    <div className='fixed top-0 left-0 w-full bg-[#fdfaf6]/95 backdrop-blur-md z-50 border-b border-[#c9913a]/15 shadow-sm '>
 
       {/* Main Navbar */}
       <div className='h-26 md:h-20 flex justify-between items-center px-4 md:px-8 lg:px-12'>
@@ -32,7 +32,7 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className='hidden md:flex gap-8 items-center text-sm font-medium'>
-          <NavLink to="/">home</NavLink>
+          <NavLink to="/">Home</NavLink>
 
           <NavLink to="/Services">Services</NavLink>
           <NavLink to="/Gallery">Gallery</NavLink>

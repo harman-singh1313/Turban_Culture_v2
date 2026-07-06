@@ -28,12 +28,15 @@ const SliderManager= lazy(()=>import("./Dashboard/SidebarPages/SliderManager"))
 const Layout = () => (
   <>
     <Navbar />
-    <Outlet />
+
+    <div className="pt-24 md:pt-20">
+      <Outlet />
+    </div>
+
     <Footer />
     <WhatsappChat />
   </>
 );
-
 /* ---------------- APP ---------------- */
 const App = () => {
   return (

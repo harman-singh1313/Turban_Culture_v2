@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_BASE = `${import.meta.env.VITE_API_URL}/pricing`;
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/pricing`;
 
 const getToken = () => localStorage.getItem("adminToken");
 const authHeaders = () => ({

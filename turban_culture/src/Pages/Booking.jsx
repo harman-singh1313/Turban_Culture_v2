@@ -140,7 +140,7 @@ const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/pricing`)
 
       <div className="flex flex-wrap gap-5 justify-center px-4 pb-20">
         {packagesData.length === 0 ? (
-          <p className="text-gray-400 text-sm">Koi package available nahi hai abhi.</p>
+          <p className="text-gray-400 text-sm">Something Royal is on Its Way. Stay Tuned</p>
         ) : (
           packagesData.map((pkg) => (
             <PackagesCard

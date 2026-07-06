@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const ServiceCard = ({ image, title, description, index = 0 }) => {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const timerRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [flipped, setFlipped] = useState(false);
+  const hasAutoFlipped = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -22,7 +24,29 @@ const ServiceCard = ({ image, title, description, index = 0 }) => {
     };
   }, []);
 
-  const handleMouseEnter = () => {
+useEffect(() => {
+  if (!visible) return;
+
+const isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+  if (isMobile && !hasAutoFlipped.current) {
+    hasAutoFlipped.current = true;
+
+    const flipTimer = setTimeout(() => {
+      setFlipped(true);
+
+      const backTimer = setTimeout(() => {
+        setFlipped(false);
+      }, 2500);
+
+      timerRef.current = backTimer;
+}, 3000 + index * 1000);
+
+    return () => {
+      clearTimeout(flipTimer);
+      clearTimeout(timerRef.current);
+    };
+  }
+}, [visible,index]);  const handleMouseEnter = () => {
     clearTimeout(timerRef.current);
     setFlipped(true);
   };
@@ -34,18 +58,12 @@ const ServiceCard = ({ image, title, description, index = 0 }) => {
     }, 2000);
   };
 
-  const handleClick = () => {
-    clearTimeout(timerRef.current);
-    setFlipped((prev) => !prev);
-  };
-
   return (
     <div
       ref={ref}
       style={{ animationDelay: `${index * 100}ms`, perspective: "1000px" }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
       className={`relative group w-full h-72 lg:h-80 cursor-pointer
         ${visible ? "animate-bottomtotop" : "opacity-0 translate-y-16"}`}
     >
@@ -99,9 +117,10 @@ const ServiceCard = ({ image, title, description, index = 0 }) => {
 
           <button
             type="button"
+            onClick={() => navigate("/gallery")}
             className="self-start text-[#9a681d] border border-[#c9913a]/40 rounded-full px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-wider hover:bg-[#c9913a] hover:text-white transition duration-300"
           >
-            Learn More
+            View Gallery
           </button>
         </div>
       </div>
