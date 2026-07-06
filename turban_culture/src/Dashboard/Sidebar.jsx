@@ -41,7 +41,7 @@ const menuItems = [
   },
   {
     title:"Vedio Manager",
-    path:"/admin/vedioManager",
+    path:"/admin/videoManager",
      icon: ShoppingBag,
   },
   // {
