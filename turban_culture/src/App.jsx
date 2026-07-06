@@ -23,7 +23,8 @@ const AdminLogin = lazy(() => import("./Pages/AdminLogin"));
 const GalleryManager = lazy(() => import("./Dashboard/SidebarPages/GalleryManager"));
 const ProtectedRoute = lazy(() => import("./Pages/ProtectedRoute"));
 const ResetPassword = lazy(() => import("./Pages/ResetPassword"));
-const SliderManager= lazy(()=>import("./Dashboard/SidebarPages/SliderManager"))
+const SliderManager = lazy(() => import("./Dashboard/SidebarPages/SliderManager"))
+const VedioManager = lazy(() => import("./Dashboard/SidebarPages/VedioManager"))
 /* ---------------- LAYOUT ---------------- */
 const Layout = () => (
   <>
@@ -73,7 +74,9 @@ const App = () => {
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="services" element={<AdminServices />} />
             <Route path="galleryManager" element={<GalleryManager />} />
-            <Route path="sliderManager" element={<SliderManager/>}/>
+            <Route path="sliderManager" element={<SliderManager />} />
+            <Route path="VedioManager" element={<VedioManager/>} />
+
           </Route>
 
           {/* RECEIPT */}
