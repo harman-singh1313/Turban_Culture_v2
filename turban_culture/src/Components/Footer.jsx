@@ -32,7 +32,6 @@ const Footer = () => {
     { name: "Home", path: "/" },
     { name: "Services", path: "/Services" },
     { name: "Gallery", path: "/Gallery" },
-    { name: "Reviews", path: "/Reviews" },
     { name: "Booking", path: "/Booking" },
   ].map((link) => (
     <NavLink

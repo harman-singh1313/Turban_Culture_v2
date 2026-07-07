@@ -47,9 +47,9 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
 
   return (
     <div className="video-wrapper">
-      {/* TRACK */}
+
       <div className="video-track">
-        {videos.map((item, i) => (
+        {[...videos, ...videos].map((item, i) => (
           <div
             key={i}
             className="video-card"
@@ -61,24 +61,23 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
               muted
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
             />
           </div>
         ))}
       </div>
 
-      {/* MODAL (FIXED) */}
+
       {selectedVideo && (
         <div
           className="video-modal"
           onClick={() => setSelectedVideo(null)}
         >
-          {/* STOP PROP */}
           <div
             className="modal-box"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* ❌ CLOSE BUTTON */}
+
             <button
               className="close-btn"
               onClick={() => setSelectedVideo(null)}
@@ -92,18 +91,21 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
               autoPlay
               className="modal-video"
             />
+
           </div>
         </div>
       )}
 
-      {/* CSS */}
+
       <style>{`
+
         .video-wrapper {
           width: 100%;
           height: ${height};
           overflow: hidden;
           padding: 0 12px;
         }
+
 
         .video-track {
           display: flex;
@@ -114,12 +116,22 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
           will-change: transform;
         }
 
+
         @keyframes scrollLeft {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+
+          0% {
+            transform: translateX(0);
+          }
+
+          100% {
+            transform: translateX(-50%);
+          }
+
         }
 
+
         .video-card {
+
           flex: 0 0 auto;
           width: 200px;
           height: ${height};
@@ -127,16 +139,22 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
           overflow: hidden;
           background: black;
           cursor: pointer;
+
         }
 
+
         .video-card video {
+
           width: 100%;
           height: 100%;
           object-fit: cover;
+
         }
 
-        /* MODAL BACKGROUND */
+
+
         .video-modal {
+
           position: fixed;
           inset: 0;
           background: rgba(0,0,0,0.92);
@@ -144,52 +162,82 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
           align-items: center;
           justify-content: center;
           z-index: 9999;
+
         }
 
-        /* BOX */
+
+
         .modal-box {
+
           position: relative;
           max-width: 95vw;
           max-height: 85vh;
+
         }
 
+
+
         .modal-video {
+
           width: 100%;
           height: auto;
           border-radius: 12px;
+
         }
 
-        /* CLOSE BUTTON (IMPORTANT) */
+
+
         .close-btn {
+
           position: absolute;
           top: -12px;
           right: -12px;
+
           background: white;
           color: black;
+
           border: none;
+
           width: 34px;
           height: 34px;
+
           border-radius: 50%;
+
           font-size: 18px;
+
           cursor: pointer;
+
           display: flex;
           align-items: center;
           justify-content: center;
+
           z-index: 10;
+
         }
 
-        @media (max-width: 768px) {
-          .video-card {
-            width: 130px;
-            height: 180px;
+
+
+        @media(max-width:768px){
+
+          .video-card{
+
+            width:130px;
+            height:180px;
+
           }
 
-          .close-btn {
-            top: 10px;
-            right: 10px;
+
+          .close-btn{
+
+            top:10px;
+            right:10px;
+
           }
+
         }
+
       `}</style>
+
     </div>
   );
 };

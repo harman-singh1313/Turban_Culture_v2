@@ -69,7 +69,7 @@ const Home = () => {
         head1="Professional"
         head2="Turban"
         head3="Tying Service"
-        line="Har shaadi nu yadgaar banaao. Expert turban tying — booked at your date, delivered with pride."
+        line="Make every wedding unforgettable. Expert turban tying services — available on your special date, delivered with pride and perfection."
         button="Book Your Royal Look"
       />
 
