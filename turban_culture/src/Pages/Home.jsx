@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import groom2 from '../assets/groom2.png'
+import groom2 from '../assets/groom2.jpg'
 import punjabi_groom from '../assets/punjabi_groom.jpg'
 import family_turban from '../assets/family_turban.jpg'
 import jodpuri_safa from '../assets/jodpuri_safa.jpg'
@@ -52,9 +52,9 @@ const Home = () => {
   useEffect(() => {
     const fetchGallery = async () => {
       const res = await axios.get(`${API_URL}/api/gallery`)
-   const images = res.data?.images?.map(
-  (item) => item.imageUrl
-) || [];
+      const images = res.data?.images?.map(
+        (item) => item.imageUrl
+      ) || [];
       setMyImages(images);
     };
     fetchGallery();
@@ -144,7 +144,7 @@ const Home = () => {
         </div>
       </div>
 
-    <SideBarVedio/>
+      <SideBarVedio />
 
       {/* Services Section - IMPROVED */}
       <div className='bg-gradient-to-b from-white to-[#fdfaf6] p-5'>

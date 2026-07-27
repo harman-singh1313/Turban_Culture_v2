@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Slider from '../Components/Slider'
 import SidebarScroll from '../Components/SidebarScroll'
-import bg_image from '../assets/bg_image.png'
+import bg_image from '../assets/bg_image.jpg'
+import SideBarVideo from '../Components/SideBarVideo'
 
 const API_URL = import.meta.env.VITE_API_URL || "http://3.27.155.171:5000";
 
@@ -98,12 +99,7 @@ const [loading, setLoading] = useState(true)
       )}
 
       {row2.length > 0 && (
-        <SidebarScroll
-          images={row2}
-          height="250px"
-          speed="20s"
-          direction="left"
-        />
+           <SideBarVideo height="250px" speed="12s" />
       )}
 
       {row3.length > 0 && (

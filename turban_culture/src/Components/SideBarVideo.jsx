@@ -3,11 +3,25 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/videos`;
 
+// Injects Cloudinary transformation params (auto format/quality + resize)
+// into a raw Cloudinary video URL coming from the database, if it is one.
+const optimizeCloudinaryVideo = (url, width = 400, height = 500) => {
+  if (!url || !url.includes("res.cloudinary.com") || !url.includes("/upload/")) {
+    return url; // not a Cloudinary URL, leave untouched
+  }
+  const transform = `f_auto,q_auto,w_${width},h_${height},c_fill`;
+  return url.replace("/upload/", `/upload/${transform}/`);
+};
+
 const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [isPaused, setIsPaused] = useState(false);
   const videoRefs = useRef([]);
+
+  const pause = () => setIsPaused(true);
+  const resume = () => setIsPaused(false);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -47,37 +61,40 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
 
   return (
     <div className="video-wrapper">
-
-      <div className="video-track">
-        {[...videos, ...videos].map((item, i) => (
-          <div
-            key={i}
-            className="video-card"
-            onClick={() => setSelectedVideo(item.videoUrl)}
-          >
-            <video
-              ref={(el) => (videoRefs.current[i] = el)}
-              src={item.videoUrl}
-              muted
-              loop
-              playsInline
-              preload="metadata"
-            />
-          </div>
-        ))}
+      <div
+        className={`video-track ${isPaused ? "paused" : ""}`}
+        onTouchStart={pause}
+        onTouchEnd={resume}
+        onMouseDown={pause}
+        onMouseUp={resume}
+        onMouseLeave={resume}
+      >
+        {[...videos, ...videos].map((item, i) => {
+          const src = optimizeCloudinaryVideo(item.videoUrl);
+          return (
+            <div
+              key={i}
+              className="video-card"
+              onClick={() => setSelectedVideo(src)}
+            >
+              <video
+                ref={(el) => (videoRefs.current[i] = el)}
+                src={src}
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                className="video-el"
+                onLoadedData={(e) => e.target.classList.add("loaded")}
+              />
+            </div>
+          );
+        })}
       </div>
 
-
       {selectedVideo && (
-        <div
-          className="video-modal"
-          onClick={() => setSelectedVideo(null)}
-        >
-          <div
-            className="modal-box"
-            onClick={(e) => e.stopPropagation()}
-          >
-
+        <div className="video-modal" onClick={() => setSelectedVideo(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <button
               className="close-btn"
               onClick={() => setSelectedVideo(null)}
@@ -91,11 +108,9 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
               autoPlay
               className="modal-video"
             />
-
           </div>
         </div>
       )}
-
 
       <style>{`
 
@@ -104,6 +119,19 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
           height: ${height};
           overflow: hidden;
           padding: 0 12px;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+        }
+
+        .video-wrapper::-webkit-scrollbar {
+          display: none;
+        }
+
+        @media (max-width: 768px) {
+          .video-wrapper {
+            overflow-x: auto !important;
+            overflow-y: hidden;
+          }
         }
 
 
@@ -114,6 +142,14 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
           width: max-content;
           animation: scrollLeft ${speed} linear infinite;
           will-change: transform;
+        }
+
+        .video-track.paused {
+          animation-play-state: paused !important;
+        }
+
+        .video-track:hover {
+          animation-play-state: paused;
         }
 
 
@@ -137,18 +173,24 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
           height: ${height};
           border-radius: 14px;
           overflow: hidden;
-          background: black;
+          background: #1e1e1e;
           cursor: pointer;
 
         }
 
 
-        .video-card video {
+        .video-el {
 
           width: 100%;
           height: 100%;
           object-fit: cover;
+          opacity: 0;
+          transition: opacity 0.35s ease;
 
+        }
+
+        .video-el.loaded {
+          opacity: 1;
         }
 
 
