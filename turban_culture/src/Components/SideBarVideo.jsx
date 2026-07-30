@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-
+import './SideBarVideo.css';
 const API_URL = `${import.meta.env.VITE_API_URL}/api/videos`;
 
 // Injects Cloudinary transformation params (auto format/quality + resize)
@@ -22,71 +22,143 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
 
   const pause = () => setIsPaused(true);
   const resume = () => setIsPaused(false);
-
   useEffect(() => {
+    let timer;
+
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(API_URL);
-        setVideos(res.data.videos || []);
+        // ⚡ Fast load - first 5 videos
+        const fastRes = await axios.get(`${API_URL}?limit=5`);
+
+        const fastVideos = fastRes.data.videos || [];
+        setVideos(fastVideos);
+        setLoading(false);
+
+        // 🐢 Background load - all videos
+        timer = setTimeout(async () => {
+          try {
+            const fullRes = await axios.get(API_URL);
+            setVideos(fullRes.data.videos || []);
+          } catch (err) {
+            console.log("Full video load error:", err);
+          }
+        }, 2000);
       } catch (err) {
         console.log(err);
-      } finally {
         setLoading(false);
       }
     };
 
     fetchVideos();
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (!videos.length) return;
 
-    const timer = setTimeout(() => {
-      videoRefs.current.forEach((video) => {
-        if (video) {
-          video.muted = true;
-          video.loop = true;
-          video.playsInline = true;
-          video.play().catch(() => {});
-        }
-      });
-    }, 300);
+    // Setup all videos
+    videoRefs.current.forEach((video) => {
+      if (video) {
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+      }
+    });
 
-    return () => clearTimeout(timer);
+    // Helper function
+   const playBatch = (start, end) => {
+  videoRefs.current
+    .slice(start, end)
+    .filter(Boolean)
+    .forEach((video) => {
+      video.play().catch(() => {});
+    });
+};
+
+    // ⚡ First 3 videos immediately
+    playBatch(0, 3);
+
+    // 🐢 Next 3 after 2 sec
+    const timer1 = setTimeout(() => {
+      playBatch(3, 6);
+    }, 2000);
+
+    // 🐢 Next 3 after 4 sec
+    const timer2 = setTimeout(() => {
+      playBatch(6, 9);
+    }, 4000);
+
+    // 🐢 All remaining videos after 6 sec
+    const timer3 = setTimeout(() => {
+      const remainingStart = 9;
+
+      if (videoRefs.current.length > remainingStart) {
+        playBatch(remainingStart, videoRefs.current.length);
+      }
+    }, 6000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
   }, [videos]);
 
   if (loading) {
     return <div className="p-4 text-sm text-gray-500">Loading videos...</div>;
   }
+  if (!videos.length) {
+    return <div className="p-4 text-sm text-gray-500">No videos available</div>;
+  }
 
-  return (
-    <div className="video-wrapper">
-      <div
-        className={`video-track ${isPaused ? "paused" : ""}`}
-        onTouchStart={pause}
-        onTouchEnd={resume}
-        onMouseDown={pause}
-        onMouseUp={resume}
-        onMouseLeave={resume}
-      >
-        {[...videos, ...videos].map((item, i) => {
-          const src = optimizeCloudinaryVideo(item.videoUrl);
-          return (
-            <div
-              key={i}
-              className="video-card"
-              onClick={() => setSelectedVideo(src)}
-            >
-              <video
-                ref={(el) => (videoRefs.current[i] = el)}
-                src={src}
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="video-el"
-                onLoadedData={(e) => e.target.classList.add("loaded")}
-              />
+  const displayVideos = videos.length > 0
+    ? [...videos, ...videos]
+    : [];
+
+return (
+  <div className="video-wrapper" style={{ height }}>
+    <div
+      className={`video-track ${isPaused ? "paused" : ""}`}
+      style={{ animationDuration: speed }}
+      onTouchStart={pause}
+      onTouchEnd={resume}
+      onMouseDown={pause}
+      onMouseUp={resume}
+      onMouseLeave={resume}
+    >
+      {displayVideos.map((item, i) => {
+        const originalSrc = item.videoUrl;
+        const thumbSrc = optimizeCloudinaryVideo(item.videoUrl, 180, 240);
+
+        return (
+          <div
+            key={i}
+            className="video-card-wrapper"
+            style={{ height }}
+            onClick={() => setSelectedVideo(originalSrc)}
+          >
+              {/* Loader */}
+              <div className="video-loader">
+                <div className="video-spinner" />
+              </div>
+
+              {/* Video */}
+              <div className="video-card">
+                <video
+                  ref={(el) => (videoRefs.current[i] = el)}
+                  src={thumbSrc}
+                  muted
+                  loop
+                  playsInline
+                  preload={i < 3 ? "metadata" : "none"}
+                  className="video-el"
+                  onLoadedData={(e) => {
+                    e.target.classList.add("loaded");
+                    e.target.parentElement.previousSibling?.classList.add("hidden");
+                  }}
+                />
+              </div>
             </div>
           );
         })}
@@ -112,173 +184,7 @@ const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
         </div>
       )}
 
-      <style>{`
 
-        .video-wrapper {
-          width: 100%;
-          height: ${height};
-          overflow: hidden;
-          padding: 0 12px;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-        }
-
-        .video-wrapper::-webkit-scrollbar {
-          display: none;
-        }
-
-        @media (max-width: 768px) {
-          .video-wrapper {
-            overflow-x: auto !important;
-            overflow-y: hidden;
-          }
-        }
-
-
-        .video-track {
-          display: flex;
-          flex-wrap: nowrap;
-          gap: 16px;
-          width: max-content;
-          animation: scrollLeft ${speed} linear infinite;
-          will-change: transform;
-        }
-
-        .video-track.paused {
-          animation-play-state: paused !important;
-        }
-
-        .video-track:hover {
-          animation-play-state: paused;
-        }
-
-
-        @keyframes scrollLeft {
-
-          0% {
-            transform: translateX(0);
-          }
-
-          100% {
-            transform: translateX(-50%);
-          }
-
-        }
-
-
-        .video-card {
-
-          flex: 0 0 auto;
-          width: 200px;
-          height: ${height};
-          border-radius: 14px;
-          overflow: hidden;
-          background: #1e1e1e;
-          cursor: pointer;
-
-        }
-
-
-        .video-el {
-
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          opacity: 0;
-          transition: opacity 0.35s ease;
-
-        }
-
-        .video-el.loaded {
-          opacity: 1;
-        }
-
-
-
-        .video-modal {
-
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.92);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-
-        }
-
-
-
-        .modal-box {
-
-          position: relative;
-          max-width: 95vw;
-          max-height: 85vh;
-
-        }
-
-
-
-        .modal-video {
-
-          width: 100%;
-          height: auto;
-          border-radius: 12px;
-
-        }
-
-
-
-        .close-btn {
-
-          position: absolute;
-          top: -12px;
-          right: -12px;
-
-          background: white;
-          color: black;
-
-          border: none;
-
-          width: 34px;
-          height: 34px;
-
-          border-radius: 50%;
-
-          font-size: 18px;
-
-          cursor: pointer;
-
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          z-index: 10;
-
-        }
-
-
-
-        @media(max-width:768px){
-
-          .video-card{
-
-            width:130px;
-            height:180px;
-
-          }
-
-
-          .close-btn{
-
-            top:10px;
-            right:10px;
-
-          }
-
-        }
-
-      `}</style>
 
     </div>
   );

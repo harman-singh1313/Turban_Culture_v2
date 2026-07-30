@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import groom2 from '../assets/groom2.jpg'
+import groom2 from '../assets/groom2.webp'
 import punjabi_groom from '../assets/punjabi_groom.jpg'
 import family_turban from '../assets/family_turban.jpg'
 import jodpuri_safa from '../assets/jodpuri_safa.jpg'
@@ -18,6 +18,7 @@ import SideBarVedio from '../Components/SideBarVideo'
 const API_URL = import.meta.env.VITE_API_URL || "http://3.27.155.171:5000";
 
 // Scroll reveal wrapper - Added stagger effect
+
 const Reveal = ({ children, delay = 0, className = '' }) => {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
@@ -49,14 +50,32 @@ const Reveal = ({ children, delay = 0, className = '' }) => {
 
 const Home = () => {
   const [myImages, setMyImages] = useState([]);
+
   useEffect(() => {
     const fetchGallery = async () => {
-      const res = await axios.get(`${API_URL}/api/gallery`)
-      const images = res.data?.images?.map(
-        (item) => item.imageUrl
-      ) || [];
-      setMyImages(images);
+      try {
+        // Fast load - first 8 images
+        const fastRes = await axios.get(`${API_URL}/api/gallery?limit=8`);
+
+        const fastImages =
+          fastRes.data?.images?.map((item) => item.imageUrl) || [];
+
+        setMyImages(fastImages);
+
+        // Background load - remaining images
+        setTimeout(async () => {
+          const fullRes = await axios.get(`${API_URL}/api/gallery`);
+
+          const fullImages =
+            fullRes.data?.images?.map((item) => item.imageUrl) || [];
+
+          setMyImages(fullImages);
+        }, 2000);
+      } catch (err) {
+        console.error("Gallery load error:", err);
+      }
     };
+
     fetchGallery();
   }, []);
   return (

@@ -1,5 +1,5 @@
 import React, { useState, memo } from "react";
-
+import './SidebarScroll.css';
 // Injects Cloudinary transformation params (auto format/quality + resize)
 // into a raw Cloudinary URL coming from the database, if it is one.
 const optimizeCloudinaryUrl = (url, width = 400, height = 500) => {
@@ -12,10 +12,11 @@ const optimizeCloudinaryUrl = (url, width = 400, height = 500) => {
 
 const SidebarScroll = ({ images, height, speed, direction }) => {
   // Duplicate for seamless infinite loop, and optimize Cloudinary URLs
-  const allImages = [...images, ...images].map((img) =>
-    optimizeCloudinaryUrl(img)
-  );
-
+  // Keep original URLs
+// Duplicate for seamless infinite loop
+const allImages = images.length > 0
+  ? [...images, ...images]
+  : [];
   const className = `scroll-track-${direction}`;
 
   const [selectedImg, setSelectedImg] = useState(null);
@@ -29,111 +30,16 @@ const SidebarScroll = ({ images, height, speed, direction }) => {
     <div
       className="scroll-outer"
       style={{
-        width: "100%",
         height: height || "250px",
-        overflow: "hidden",
         padding: "0 12px",
       }}
     >
-      <style>{`
 
-        .scroll-outer {
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-        }
-
-        .scroll-outer::-webkit-scrollbar {
-          display: none;
-        }
-
-        @media (max-width: 768px) {
-          .scroll-outer {
-            overflow-x: auto !important;
-            overflow-y: hidden;
-          }
-        }
-
-        @keyframes spin {
-          to {
-            transform: translate(-50%, -50%) rotate(360deg);
-          }
-        }
-
-        @keyframes scrollLeft {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-
-        @keyframes scrollRight {
-          0% {
-            transform: translateX(-50%);
-          }
-          100% {
-            transform: translateX(0);
-          }
-        }
-
-        .${className} {
-          display: flex;
-          align-items: center;
-          width: max-content;
-          will-change: transform;
-          backface-visibility: hidden;
-          transform: translateZ(0);
-
-          animation: ${
-            direction === "right" ? "scrollRight" : "scrollLeft"
-          } ${speed || "30s"} linear infinite;
-        }
-
-        .${className}:hover {
-          animation-play-state: paused;
-        }
-
-        .${className}.paused {
-          animation-play-state: paused !important;
-        }
-
-        .gallery-scroll-image {
-          width: 200px;
-          height: ${height || "250px"};
-          object-fit: cover;
-          border-radius: 14px;
-          flex-shrink: 0;
-          cursor: pointer;
-          margin-right: 22px;
-          background: #1e1e1e;
-          opacity: 0;
-          transition: transform 0.3s ease, opacity 0.35s ease;
-        }
-
-        .gallery-scroll-image.loaded {
-          opacity: 1;
-        }
-
-        .gallery-scroll-image:hover {
-          transform: scale(1.04);
-        }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-          .gallery-scroll-image {
-            width: 120px;
-            height: 180px;
-            margin-right: 14px;
-            border-radius: 10px;
-          }
-        }
-
-      `}</style>
 
       {/* Scroll Track */}
       <div
         className={`${className} ${isPaused ? "paused" : ""}`}
+        style={{ animationDuration: speed || "30s" }}
         onTouchStart={pause}
         onTouchEnd={resume}
         onMouseDown={pause}
@@ -141,22 +47,41 @@ const SidebarScroll = ({ images, height, speed, direction }) => {
         onMouseLeave={resume}
       >
         {allImages.map((img, i) => (
-          <img
+          <div
             key={i}
-            src={img}
-            alt={`pic-${i}`}
-            loading="lazy"
-            decoding="async"
-            className="gallery-scroll-image"
-            ref={(el) => {
-              if (el && el.complete) el.classList.add("loaded");
-            }}
-            onLoad={(e) => e.target.classList.add("loaded")}
-            onClick={() => {
-              setSelectedImg(img);
-              setModalLoading(true);
-            }}
-          />
+            className="gallery-image-wrapper"
+          >
+            {/* Loader */}
+            <div className="gallery-image-loader">
+              <div className="loader-spinner" />
+            </div>
+
+            {/* Image */}
+            <img
+              src={optimizeCloudinaryUrl(img, 180, 240)}
+              alt={`gallery-${i}`}
+              width="180"
+              height="240"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+              className="gallery-scroll-image"
+              ref={(el) => {
+                if (el && el.complete) {
+                  el.classList.add("loaded");
+                  el.previousSibling?.classList.add("hidden");
+                }
+              }}
+              onLoad={(e) => {
+                e.target.classList.add("loaded");
+                e.target.previousSibling?.classList.add("hidden");
+              }}
+              onClick={() => {
+                setSelectedImg(img);
+                setModalLoading(true);
+              }}
+            />
+          </div>
         ))}
       </div>
 
@@ -164,82 +89,35 @@ const SidebarScroll = ({ images, height, speed, direction }) => {
       {selectedImg && (
         <div
           onClick={() => setSelectedImg(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.9)",
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "20px",
-          }}
+          className="fixed inset-0 z-[999999] bg-black/95 flex items-center justify-center p-2 md:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              position: "relative",
-              display: "inline-block",
-              maxWidth: "92vw",
-              maxHeight: "90vh",
-            }}
+            className="relative w-full h-full flex items-center justify-center"
           >
+            {/* Close Button */}
             <button
               onClick={() => setSelectedImg(null)}
               aria-label="Close image"
-              style={{
-                position: "absolute",
-                top: "12px",
-                right: "12px",
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                border: "none",
-                background: "rgba(0,0,0,0.65)",
-                color: "#fff",
-                fontSize: "24px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 10,
-              }}
+              className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-black/70 text-white text-2xl font-bold flex items-center justify-center"
             >
               ✕
             </button>
 
+            {/* Loader */}
             {modalLoading && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "48px",
-                  height: "48px",
-                  border: "4px solid rgba(255,255,255,0.25)",
-                  borderTopColor: "#fff",
-                  borderRadius: "50%",
-                  animation: "spin 0.8s linear infinite",
-                  zIndex: 5,
-                }}
-              />
+              <div className="absolute z-10">
+                <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
             )}
 
+            {/* Full Image */}
             <img
               src={selectedImg}
               alt="full view"
               onLoad={() => setModalLoading(false)}
-              style={{
-                display: "block",
-                maxWidth: "92vw",
-                maxHeight: "90vh",
-                objectFit: "contain",
-                borderRadius: "14px",
-                opacity: modalLoading ? 0 : 1,
-                transition: "opacity 0.25s ease",
-              }}
+              className={`max-w-full max-h-full object-contain rounded-xl transition-opacity duration-300 ${modalLoading ? "opacity-0" : "opacity-100"
+                }`}
             />
           </div>
         </div>

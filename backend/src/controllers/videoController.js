@@ -56,14 +56,26 @@ export const uploadVideoFile = async (req, res) => {
 // ================= GET VIDEOS =================
 export const getVideos = async (req, res) => {
   try {
-    const videos = await Video.find().sort({ createdAt: -1 });
+    const limit = parseInt(req.query.limit);
 
-    res.json({
+    let query = Video.find().sort({ createdAt: -1 });
+
+    if (limit && !isNaN(limit)) {
+      query = query.limit(limit);
+    }
+
+    const videos = await query;
+
+    res.status(200).json({
       success: true,
+      count: videos.length,
       videos,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
