@@ -14,6 +14,7 @@ const Main = (props) => {
   loading="eager"
   decoding="async"
   className="w-full h-[100dvh] object-cover object-[75%_center] md:object-center animate-kenburns"
+  
 />
 
       {/* Blurred copy — sirf bottom te dikh di, upar clip hundi */}
