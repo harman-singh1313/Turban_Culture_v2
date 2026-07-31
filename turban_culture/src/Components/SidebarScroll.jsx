@@ -85,18 +85,18 @@ const allImages = images.length > 0
       {/* Fullscreen Modal */}
 {selectedImg && (
   <div
+    className="fixed top-0 left-0 right-0 bottom-0 z-[9999999] bg-black/95 flex items-center justify-center"
     onClick={() => setSelectedImg(null)}
-    className="fixed inset-0 z-[999999] bg-black/95 flex items-center justify-center p-3 sm:p-4"
   >
     <div
+      className="relative w-full h-full flex items-center justify-center p-4"
       onClick={(e) => e.stopPropagation()}
-      className="relative w-full max-w-[260px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[480px] xl:max-w-[540px] flex items-center justify-center"
     >
       {/* Close Button */}
       <button
         onClick={() => setSelectedImg(null)}
         aria-label="Close image"
-        className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white text-black text-xl font-bold flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
+        className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white text-black text-2xl font-bold flex items-center justify-center shadow-lg"
       >
         ✕
       </button>
@@ -113,7 +113,7 @@ const allImages = images.length > 0
         src={selectedImg}
         alt="full view"
         onLoad={() => setModalLoading(false)}
-        className={`w-full h-auto max-h-[72vh] object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${
+        className={`max-w-[92vw] max-h-[85vh] object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${
           modalLoading ? "opacity-0" : "opacity-100"
         }`}
       />

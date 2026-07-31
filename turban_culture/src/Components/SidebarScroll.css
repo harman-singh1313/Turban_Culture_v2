@@ -143,7 +143,6 @@
     cursor: grabbing;
   }
 
-  /* Auto scroll chalda rahe */
   .scroll-track-left,
   .scroll-track-right {
     width: max-content;
@@ -151,6 +150,7 @@
     gap: 12px;
   }
 
+/* ===== IMAGE WRAPPER ===== */
 /* ===== IMAGE WRAPPER ===== */
 .gallery-image-wrapper {
   position: relative;
@@ -168,10 +168,10 @@
 /* ===== IMAGE ===== */
 .gallery-scroll-image {
   width: 100%;
-  height: auto;          /* important */
+  height: auto;
   display: block;
   border-radius: 16px;
-  object-fit: contain;   /* crop nahi karega */
+  object-fit: contain;
   cursor: pointer;
   background: #1e1e1e;
   opacity: 0;
