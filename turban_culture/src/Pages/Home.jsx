@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
 import groom2 from '../assets/groom2.webp'
+import React, { useEffect, useRef, useState } from 'react'
 import punjabi_groom from '../assets/punjabi_groom.jpg'
 import family_turban from '../assets/family_turban.jpg'
 import jodpuri_safa from '../assets/jodpuri_safa.jpg'
@@ -11,7 +11,6 @@ import Main from '../Components/Main'
 import transparent1 from '../assets/transparent1.png'
 import axios from 'axios'
 import SidebarScroll from '../Components/SidebarScroll'
-import WhatsappChat from '../Components/whatsappChat'
 import LeadsForm from '../Components/LeadsForm'
 import SideBarVedio from '../Components/SideBarVideo'
 
@@ -50,47 +49,64 @@ const Reveal = ({ children, delay = 0, className = '' }) => {
 
 const Home = () => {
   const [myImages, setMyImages] = useState([]);
+const [showMedia, setShowMedia] = useState(false);
+useEffect(() => {
+  let timer;
 
-  useEffect(() => {
-    const fetchGallery = async () => {
-      try {
-        // Fast load - first 8 images
-        const fastRes = await axios.get(`${API_URL}/api/gallery?limit=8`);
+  const fetchGallery = async () => {
+    try {
+      const fastRes = await axios.get(`${API_URL}/api/gallery?limit=8`);
 
-        const fastImages =
-          fastRes.data?.images?.map((item) => item.imageUrl) || [];
+      const fastImages =
+        fastRes.data?.images?.map((item) => item.imageUrl) || [];
 
-        setMyImages(fastImages);
+      setMyImages(fastImages);
 
-        // Background load - remaining images
-        setTimeout(async () => {
+      timer = setTimeout(async () => {
+        try {
           const fullRes = await axios.get(`${API_URL}/api/gallery`);
 
           const fullImages =
             fullRes.data?.images?.map((item) => item.imageUrl) || [];
 
           setMyImages(fullImages);
-        }, 2000);
-      } catch (err) {
-        console.error("Gallery load error:", err);
-      }
-    };
+        } catch (err) {
+          console.error("Full gallery load error:", err);
+        }
+      }, 2000);
+    } catch (err) {
+      console.error("Gallery load error:", err);
+    }
+  };
 
-    fetchGallery();
-  }, []);
+  fetchGallery();
+
+  return () => clearTimeout(timer);
+}, []);
+
+useEffect(() => {
+  const t = setTimeout(() => {
+    setShowMedia(true);
+  }, 1500); // 1.5 second baad media load
+
+  return () => clearTimeout(t);
+}, []);
   return (
     <div className='bg-gradient-to-b from-[#fdfaf6] via-[#fff] to-[#fdfaf6]'>
 
       {/* Hero - Main component ch button styling sudhaar lavi */}
-      <Main
-        image={groom2}
-        text="LEGACY & ELEGANCE"
-        head1="Professional"
-        head2="Turban"
-        head3="Tying Service"
-        line="Make every wedding unforgettable. Expert turban tying services — available on your special date, delivered with pride and perfection."
-        button="Book Your Royal Look"
-      />
+ <Main
+  image={groom2}
+  text="PAGG • PAGRI • SAFA • TURBAN"
+ head1="Professional"
+  head2="Wedding Turban"
+  head3="Tying Service"
+  line="Professional Punjabi pagg, pagri, safa, and wedding turban tying services for grooms, baraat, jaggo, receptions, family functions, and destination weddings across India."
+  button="Book Your Royal Look"
+/>
+
+{/* SEO Hidden Content */}
+
 
       {/* Heritage Section - IMPROVED */}
       <div className='relative flex flex-col md:flex-row px-10   lg:px-24  sm:py-16  md:gap-16 items-center overflow-hidden'>
@@ -125,9 +141,10 @@ const Home = () => {
             <span className="text-[#c9913a] uppercase tracking-wider text-sm font-semibold">
               Our Heritage
             </span>
-            <h1 className='font-serif text-3xl sm:text-4xl lg:text-5xl text-[#1a1a1a] mt-2 leading-tight'>
-              The Heritage of the <span className="text-[#c9913a]">Turban</span>
-            </h1>
+            <h2 className='font-serif text-3xl sm:text-4xl lg:text-5xl text-[#1a1a1a] mt-2 leading-tight'>
+               Punjabi <span className="text-[#c9913a]">Pagg, Pagri & Turban</span> <br />
+                 Tying Heritage
+            </h2>
           </Reveal>
 
           <Reveal delay={150}>
@@ -142,12 +159,19 @@ const Home = () => {
           </Reveal>
 
           <Reveal delay={300}>
-            <p className='leading-8 text-base text-[#555]'>
-              At <span className="font-semibold text-[#c9913a]">Turban Culture</span>,
-              we specialize in premium turban styling, where every single fold is crafted with utmost
-              precision, elegance, and cultural authenticity. From the majestic Patiala Shahi
-              to bespoke contemporary wedding styles, we ensure the crown of your big day is tied to perfection.
-            </p>
+           <p className='leading-8 text-base text-[#555]'>
+      At <span className="font-semibold text-[#c9913a]">Turban Culture</span>,
+      we provide professional
+      <span className="font-semibold text-[#1a1a1a]">
+        {' '}Punjabi Pagg, Pagri, Safa, and Wedding Turban Tying Services
+      </span>
+      for grooms, baraat members, jaggo ceremonies, family functions, and
+      cultural events across
+  <span className="font-semibold text-[#1a1a1a]">
+  {' '}Punjab, Haryana, Delhi, Rajasthan, Chandigarh, and wedding destinations across India
+</span>.
+      Every fold is crafted with precision, elegance, and cultural authenticity.
+    </p>
           </Reveal>
 
 
@@ -163,14 +187,14 @@ const Home = () => {
         </div>
       </div>
 
-      <SideBarVedio />
+     {showMedia && <SideBarVedio />}
 
       {/* Services Section - IMPROVED */}
       <div className='bg-gradient-to-b from-white to-[#fdfaf6] p-5'>
         <Reveal>
           <div className='text-center '>
             <span className="text-[#c9913a] font-semibold tracking-widest text-xs uppercase">What We Offer</span>
-            <h1 className='font-serif text-3xl sm:text-4xl lg:text-5xl text-[#1a1a1a] mt-3 mb-3'>Curated Services</h1>
+            <h2 className='font-serif text-3xl sm:text-4xl lg:text-5xl text-[#1a1a1a] mt-3 mb-3'>Curated Services</h2>
             <p className='text-[#a08060] text-base max-w-xl mx-auto'>Tailored excellence for every occasion, crafted with royal precision</p>
           </div>
         </Reveal>
@@ -219,9 +243,9 @@ const Home = () => {
           Our Collection
         </p>
 
-        <h1 className='text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-[#c9913a]'>
+        <h2 className='text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-[#c9913a]'>
           Royal Gallery
-        </h1>
+        </h2>
 
         {/* <div className='w-20 h-[2px] bg-[#c9913a] mx-auto mt-4'></div> */}
 
@@ -233,12 +257,14 @@ const Home = () => {
       </div>
 
 
-      <SidebarScroll
-        images={myImages}
-        height="250px"
-        speed="30s"
-        direction="right"
-      />
+     {showMedia && (
+  <SidebarScroll
+    images={myImages}
+    height="250px"
+    speed="30s"
+    direction="right"
+  />
+)}
 
       {/* Review Section - IMPROVED */}
       <div className="px-6 sm:px-10 pb-20 sm:pb-16 mt-8 flex flex-col lg:flex-row gap-8 items-start justify-center">
