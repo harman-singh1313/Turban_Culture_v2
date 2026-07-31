@@ -9,7 +9,7 @@ const optimizeCloudinaryVideo = (url, width = 400, height = 500) => {
   if (!url || !url.includes("res.cloudinary.com") || !url.includes("/upload/")) {
     return url; // not a Cloudinary URL, leave untouched
   }
-  const transform = `f_auto,q_auto,w_${width},h_${height},c_fill`;
+const transform = `f_auto,q_auto,w_${width},h_${height},c_limit`;
   return url.replace("/upload/", `/upload/${transform}/`);
 };
 
@@ -164,25 +164,35 @@ return (
         })}
       </div>
 
-      {selectedVideo && (
-        <div className="video-modal" onClick={() => setSelectedVideo(null)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="close-btn"
-              onClick={() => setSelectedVideo(null)}
-            >
-              ✖
-            </button>
+ {selectedVideo && (
+  <div
+    onClick={() => setSelectedVideo(null)}
+    className="fixed inset-0 z-[999999] bg-black/95 flex items-center justify-center p-3 sm:p-4"
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[420px] lg:max-w-[520px] xl:max-w-[620px]"
+    >
+      {/* Close Button */}
+      <button
+        onClick={() => setSelectedVideo(null)}
+        aria-label="Close video"
+        className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white text-black text-xl font-bold flex items-center justify-center shadow-lg"
+      >
+        ✕
+      </button>
 
-            <video
-              src={selectedVideo}
-              controls
-              autoPlay
-              className="modal-video"
-            />
-          </div>
-        </div>
-      )}
+      {/* Video */}
+      <video
+        src={selectedVideo}
+        controls
+        autoPlay
+        playsInline
+        className="w-full max-h-[75vh] rounded-2xl bg-black shadow-2xl object-contain"
+      />
+    </div>
+  </div>
+)}
 
 
 

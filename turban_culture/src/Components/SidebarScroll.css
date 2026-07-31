@@ -151,12 +151,41 @@
     gap: 12px;
   }
 
-  .gallery-image-wrapper {
-    width: 120px;
-    height: 180px;
-  }
+/* ===== IMAGE WRAPPER ===== */
+.gallery-image-wrapper {
+  position: relative;
+  width: 180px;
+  min-width: 180px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .gallery-scroll-image {
-    border-radius: 10px;
-  }
+/* ===== IMAGE ===== */
+.gallery-scroll-image {
+  width: 100%;
+  height: auto;          /* important */
+  display: block;
+  border-radius: 16px;
+  object-fit: contain;   /* crop nahi karega */
+  cursor: pointer;
+  background: #1e1e1e;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.35s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.gallery-scroll-image.loaded {
+  opacity: 1;
+}
+
+.gallery-scroll-image:hover {
+  transform: scale(1.04);
+}
+
 }
