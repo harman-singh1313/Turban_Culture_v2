@@ -13,7 +13,7 @@ import axios from 'axios'
 import SidebarScroll from '../Components/SidebarScroll'
 import LeadsForm from '../Components/LeadsForm'
 import SideBarVedio from '../Components/SideBarVideo'
-import GoogleReviews from "../components/GoogleReviews";
+import GoogleReviews from '../Components/GoogleReviews'
 
 const API_URL = import.meta.env.VITE_API_URL || "http://3.27.155.171:5000";
 
@@ -299,7 +299,7 @@ useEffect(() => {
           </p>
 
           <div className="rounded-2xl overflow-hidden border border-gray-200">
-            <GoogleReviews />
+            <GoogleReviews/>
           </div>
 
           <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
