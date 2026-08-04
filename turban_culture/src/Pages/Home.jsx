@@ -268,7 +268,9 @@ useEffect(() => {
 )}
 
 <section className="relative py-10 md:py-14 overflow-hidden bg-gradient-to-b from-orange-50 via-white to-gray-50">
-  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+    {/* Heading */}
     <div className="text-center mb-8 md:mb-10">
       <span className="inline-block bg-orange-100 text-orange-600 text-sm font-semibold px-4 py-2 rounded-full mb-3">
         Wedding Turban Service
@@ -283,31 +285,37 @@ useEffect(() => {
       </p>
     </div>
 
-    <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-      <div className="lg:col-span-5">
+    {/* Main Grid */}
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+      {/* Callback Form */}
+      <div className="lg:col-span-4">
         <LeadsForm />
       </div>
 
-      <div className="lg:col-span-7">
-        <div className="w-full bg-white rounded-3xl p-4 sm:p-5 shadow-lg border border-orange-100">
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+      {/* Map / Google Reviews */}
+      <div className="lg:col-span-8">
+        <div className="w-full bg-white rounded-3xl p-4 sm:p-6 lg:p-7 shadow-xl border border-orange-100">
+
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
             Visit Turban Culture
           </h3>
 
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 text-base sm:text-lg mb-5">
             Main Bazaar, Rania, Haryana 125076
           </p>
 
-          <div className="rounded-2xl overflow-hidden border border-gray-200">
-            <GoogleReviews/>
-          </div>
+          {/* Bigger Google Map */}
+          <GoogleReviews />
 
           <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             Open 24 hours • Quick response for bookings
           </div>
+
         </div>
       </div>
+
     </div>
   </div>
 </section>
