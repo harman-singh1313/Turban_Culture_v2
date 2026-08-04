@@ -13,6 +13,7 @@ import axios from 'axios'
 import SidebarScroll from '../Components/SidebarScroll'
 import LeadsForm from '../Components/LeadsForm'
 import SideBarVedio from '../Components/SideBarVideo'
+import GoogleReviews from "../components/GoogleReviews";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://3.27.155.171:5000";
 
@@ -266,46 +267,50 @@ useEffect(() => {
   />
 )}
 
-      {/* Review Section - IMPROVED */}
-      <div className="px-6 sm:px-10 pb-20 sm:pb-16 mt-8 flex flex-col lg:flex-row gap-8 items-start justify-center">
-        <Reveal>
-          <div className='relative flex flex-col items-center text-center m-auto w-full max-w-3xl bg-gradient-to-br from-[#FFFEF0] to-[#fff] p-8 sm:p-12 rounded-3xl shadow-xl border border-[#c9913a]/10'>
+<section className="relative py-10 md:py-14 overflow-hidden bg-gradient-to-b from-orange-50 via-white to-gray-50">
+  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="text-center mb-8 md:mb-10">
+      <span className="inline-block bg-orange-100 text-orange-600 text-sm font-semibold px-4 py-2 rounded-full mb-3">
+        Wedding Turban Service
+      </span>
 
-            {/* Quote icon */}
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#c9913a] rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" />
-              </svg>
-            </div>
+      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-3">
+        Book Your <span className="text-orange-500">Turban Artist</span>
+      </h2>
 
-            <p className='font-serif text-lg sm:text-xl text-[#3a3a3a] leading-9 italic mb-8 mt-4'>
-              "Turban Culture transformed my wedding journey into a truly royal experience. Every detail was handled with perfection, and the elegance lasted throughout the entire celebration. A master of his craft."
-            </p>
+      <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
+        Get a quick callback and visit our trusted Google Business profile.
+      </p>
+    </div>
 
-            <div className="flex flex-col items-center">
-              <img
-                className='w-20 h-20 rounded-full object-cover mb-4 border-4 border-[#c9913a]/30 shadow-lg'
-                src={groom_review}
-                alt="Ranveer Singh"
-              />
-              <h2 className='font-semibold tracking-widest text-sm text-[#1a1a1a]'>RANVEER SINGH</h2>
-              <p className='text-[#a08060] text-xs mt-1'>November 2023 Groom</p>
-
-              {/* 5 Stars */}
-              <div className="flex gap-1 mt-3">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-4 h-4 text-[#c9913a]" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Reveal>
-
-
+    <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+      <div className="lg:col-span-5">
         <LeadsForm />
       </div>
+
+      <div className="lg:col-span-7">
+        <div className="w-full bg-white rounded-3xl p-4 sm:p-5 shadow-lg border border-orange-100">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            Visit Turban Culture
+          </h3>
+
+          <p className="text-gray-600 mb-4">
+            Main Bazaar, Rania, Haryana 125076
+          </p>
+
+          <div className="rounded-2xl overflow-hidden border border-gray-200">
+            <GoogleReviews />
+          </div>
+
+          <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            Open 24 hours • Quick response for bookings
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     </div>
   )
 }
