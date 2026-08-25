@@ -26,7 +26,7 @@ export default function FloatingContact() {
         >
           {/* Instagram */}
           <a
-            href="https://instagram.com/YOUR_ID"
+            href="https://instagram.com/turbanculture.in"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 bg-white rounded-full pl-2 pr-5 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-black/5 hover:scale-105 transition-transform"
@@ -49,7 +49,7 @@ export default function FloatingContact() {
 
           {/* WhatsApp */}
           <a
-            href="https://wa.me/919999999999"
+            href="https://wa.me/919350517309"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 bg-white rounded-full pl-2 pr-5 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-black/5 hover:scale-105 transition-transform"
