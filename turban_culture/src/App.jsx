@@ -5,6 +5,7 @@ import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import ScrollToTop from "./Components/ScrollToTop";
 import WhatsappChat from "./Components/whatsappChat";
+import InstagramChat from "./Components/InstagramChat";
 
 // 🔥 LAZY LOADED PAGES (PUBLIC)
 const Home = lazy(() => import("./Pages/Home"));
@@ -35,6 +36,7 @@ const Layout = () => (
     </div>
 
     <Footer />
+    <InstagramChat/>
     <WhatsappChat />
   </>
 );

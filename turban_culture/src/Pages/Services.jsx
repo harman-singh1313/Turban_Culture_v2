@@ -4,7 +4,7 @@ import Main from '../Components/Main'
 import turban_tying from '../assets/turban_tying.webp'
 import ServiceCard from '../Components/ServiceCard'
 import turban1 from '../assets/turban1.webp'
-import turban2 from '../assets/turban2.webp'
+import punjabi_groom1 from '../assets/punjabi_groom1.jpg'
 import turban3 from '../assets/turban3.webp'
 import turban4 from '../assets/turban4.webp'
 import lehriya from '../assets/lehriya.webp'
@@ -12,6 +12,11 @@ import jodpuri from '../assets/jodpuri.jpg'
 import jodpuri_safa from '../assets/jodpuri_safa.jpg'
 import jodpuri2 from '../assets/jodpuri2.jpg'
 import PackagesCard from '../Components/PackagesCard'
+import service3 from '../assets/service3.png'
+import family_turban2 from '../assets/family_turban2.jpg'
+
+import ServiceHighlights from '../Components/SeerviceHighlights'
+import ServiceFAQ from '../Components/ServiceFAQ'
 
 const API_URL = import.meta.env.VITE_API_URL || "http://3.27.155.171:5000";
 
@@ -21,7 +26,7 @@ const Services = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-const res = await axios.get(`${API_URL}/api/pricing`)
+        const res = await axios.get(`${API_URL}/api/pricing`)
         const packages = res.data?.pricing?.packages
         if (!packages) return
         const activePackages = packages.filter(p => p.isActive)
@@ -37,15 +42,18 @@ const res = await axios.get(`${API_URL}/api/pricing`)
     <div className='bg-[#fdfaf6]'>
 
       <Main
-        image={turban_tying}
+        image={service3}
         text="turban culture"
-        head1="Styled "
-        head2="For "
-        head3="Royal Moments"
-        line="Crafted with tradition and styled with elegance.  
-                Creating royal looks for unforgettable moments.."
-        button="Book Now→"
+        head1="Every Groom "
+        head2="Deserves "
+        head3="a Royal Look"
+        line="From groom turban styling to complete baraat turban services, we create refined and memorable looks that honor tradition while enhancing your special day."
+        button="Book Your Turban Artist"
       />
+      <div>
+
+        <ServiceHighlights />
+      </div>
 
       <div className='text-center py-12'>
         <p className='text-[#a08060] text-sm tracking-[4px] uppercase mb-2'>
@@ -85,11 +93,56 @@ const res = await axios.get(`${API_URL}/api/pricing`)
         Punjabi Weeding Styles
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto px-15 lg:px-0">
-        <ServiceCard image={turban1} title="Groom Special" description="Discover our handcrafted Punjabi wedding turban styles, designed to bring elegance, tradition, and a royal touch to every celebration." />
-        <ServiceCard image={turban2} title="Groom Special" description="TEvery turban is tied with precision, blending timeless Punjabi heritage with modern elegance for your special day." />
-        <ServiceCard image={turban3} title="Groom Special" description="Explore our collection of premium wedding turban styles, carefully crafted to complement every groom's personality and attire." />
-        <ServiceCard image={turban4} title="Groom Special" description="From classic Punjabi looks to contemporary royal styles, each design is created to make your wedding appearance unforgettable." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto px-4">
+
+        <ServiceCard
+          index={0}
+          image={turban1}
+          title="Amritsar Shahi Turban"
+          features={[
+            "Face Shape Perfect Fit",
+            "Matching Kalgi Styling",
+            "Premium Wedding Finish",
+            "Perfect For Grooms"
+          ]}
+        />
+
+        <ServiceCard
+          index={1}
+          image={turban3}
+          title="wattan Wali Pagg"
+          features={[
+            "Face Shape According Perfectly Styled",
+            "Matching Royal Kalgi",
+            "Elegant Color Combination",
+            "Premium Finishing"
+          ]}
+        />
+
+        <ServiceCard
+          index={2}
+          image={punjabi_groom1}
+          title="Patiala Shahi Turban"
+          features={[
+            "Classic Punjabi Design",
+            "Matching Couple Style",
+            "Royal Wedding Look",
+            "Elegant Wedding Colors"
+          ]}
+        />
+
+        <ServiceCard
+          index={3}
+          image={family_turban2}
+          title="Ivory Elegance Style"
+          features={[
+            "Bride Side Turban Tying",
+            "Matching Family Look",
+            "Perfect Wedding Matching",
+            "Perfect Wedding Matching"
+          ]}
+        />
+
       </div>
 
       <div className='p-10 text-center'>
@@ -99,13 +152,60 @@ const res = await axios.get(`${API_URL}/api/pricing`)
           Luxury safa styling crafted to make every groom look confident, royal, and distinguished.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto px-4">
-          <ServiceCard image={lehriya} title="Groom Special" description="Celebrate your special day with elegant Hindu wedding turban styles, crafted with precision and tradition. Every style reflects timeless grace, cultural heritage, and a royal finish." />
-          <ServiceCard image={jodpuri} title="Groom Special" description="Discover premium Jodhpuri Safa styling, where timeless craftsmanship meets royal elegance for weddings and grand occasions." />
-          <ServiceCard image={jodpuri_safa} title="Groom Special" description="Inspired by the grandeur of Rajput royalty, our Jodhpuri Safas are tied with expert craftsmanship. Perfect for weddings, receptions, and every grand celebration." />
-          <ServiceCard image={jodpuri2} title="Groom Special" description="From sacred ceremonies to grand celebrations, every style is tied with precision and pride" />
+
+          <ServiceCard
+            index={0}
+            image={lehriya}
+            title="Lehriya Safa"
+            features={[
+              "Traditional Rajasthani Style",
+              "Vibrant Lehriya Pattern",
+              "Royal Wedding Finish",
+              "Elegant Safa Draping"
+            ]}
+          />
+
+          <ServiceCard
+            index={1}
+            image={jodpuri}
+            title="Royal Jodhpuri"
+            features={[
+              "Classic Jodhpuri Styling",
+              "Premium Safa Finish",
+              "Royal Wedding Look",
+              "Timeless Elegance"
+            ]}
+          />
+
+          <ServiceCard
+            index={2}
+            image={jodpuri_safa}
+            title="Rajputana Style"
+            features={[
+              "Inspired By Rajput Royalty",
+              "Perfect for Your Barat",
+                "Premium Luxury Finishing",
+              "Traditional Safa Tying",
+            
+            ]}
+          />
+
+          <ServiceCard
+            index={3}
+            image={jodpuri2}
+            title="Classic Wedding Safa"
+            features={[
+              "Traditional Wedding Look",
+              "Expert Safa Styling",
+              "Elegant Presentation",
+              "Perfect For Celebrations"
+            ]}
+          />
+
         </div>
       </div>
 
+            <ServiceFAQ/>
     </div>
   )
 }
