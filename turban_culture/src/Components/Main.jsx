@@ -295,7 +295,7 @@ const Main = (props) => {
       {/* =====================================================
           MOBILE HERO (unchanged — already working correctly)
       ====================================================== */}
-      <div className="lg:hidden w-full ">
+      <div className="lg:hidden w-full pt-5">
 
         {/* ---------------- IMAGE ---------------- */}
         <div className="relative w-full h-[52vh] sm:h-[65vh] md:h-[72vh] min-h-[360px] max-h-[560px] sm:max-h-[680px] md:max-h-[760px] overflow-hidden">
