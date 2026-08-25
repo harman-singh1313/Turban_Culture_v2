@@ -4,8 +4,9 @@ import { lazy, Suspense } from "react";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import ScrollToTop from "./Components/ScrollToTop";
-import WhatsappChat from "./Components/whatsappChat";
-import InstagramChat from "./Components/InstagramChat";
+// import WhatsappChat from "./Components/whatsappChat";
+// import InstagramChat from "./Components/InstagramChat";
+import FloatingContact from "./Components/FloatingContact";
 
 // 🔥 LAZY LOADED PAGES (PUBLIC)
 const Home = lazy(() => import("./Pages/Home"));
@@ -36,8 +37,9 @@ const Layout = () => (
     </div>
 
     <Footer />
-    <InstagramChat/>
-    <WhatsappChat />
+    <FloatingContact/>
+    {/* <InstagramChat/>
+    <WhatsappChat /> */}
   </>
 );
 /* ---------------- APP ---------------- */
