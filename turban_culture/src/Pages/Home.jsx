@@ -199,15 +199,24 @@ const Home = () => {
 
       {/* Cards grid - Fully Responsive */}
     {/* Desktop te 5 cols, Mobile te Stack Chipakna */}
-<div className="max-w-7xl mx-auto px-4 lg:px-10">
-  <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-5 sm:gap-6 gap-0">
-    <ServiceCard index={0} image={punjabi_groom1} title="Groom Special" features={["Premium Turban Tying","Style Consultation","Professional Fitting"]} />
-    <ServiceCard index={1} image={family_turban} title="Family Tying" features={["Traditional Tying","Family Matching","Professional Fitting"]} />
-    <ServiceCard index={2} image={jodpuri_safa} title="Royal Jodhpuri Safa" features={["Jodhpuri Style","Premium Fabric","Royal Finish"]} />
-    <ServiceCard index={3} image={barat_safa1} title="Baraati Safa" features={["Baraat Ready","Matching Style","Quick Finishing"]} />
-    <ServiceCard index={4} image={party_hall1} title="Special Occasion" features={["Event Styling","Custom Color","Elegant Look"]} />
+<div className="max-w-7xl mx-auto px-3 lg:px-10 pb-0">
+  <div className="flex flex-col lg:grid lg:grid-cols-5 lg:gap-6 gap-10">
+    <ServiceCard index={0} total={5} image={punjabi_groom1} title="Groom Special" features={["Premium Turban Tying","Style Consultation","Professional Fitting","Perfect Finish"]} />
+    <ServiceCard index={1} total={5} image={family_turban} title="Family Tying" features={["Traditional Turban Tying","Family Style Matching","Professional Fitting","Final Adjustments"]} />
+    <ServiceCard index={2} total={5} image={jodpuri_safa} title="Royal Jodhpuri Safa" features={["Jodhpuri Style Safa","Premium Fabric Styling","Royal Look Finish","Professional Tying"]} />
+    <ServiceCard index={3} total={5} image={barat_safa1} title="Baraati Safa" features={["Baraat Ready Safa","Matching Style Options","Professional Fitting","Quick Finishing"]} />
+    <ServiceCard index={4} total={5} image={party_hall1} title="Special Occasion" features={["Event Turban Styling","Custom Color Matching","Professional Tying","Elegant Final Look"]} />
   </div>
-  <div className="h-[40vh] sm:hidden"></div>
+</div>
+
+{/* eh agla section - mt-0 zaroor rakhi */}
+<div className="mt-0 pt-2">
+  {/* Royal Gallery wala section */}
+</div>
+
+{/* Agla section - mt-0 rakho */}
+<div className="mt-2">
+  <h2 className="text-center">OUR COLLECTION Royal Gallery</h2>
 </div>
       <div className='text-center pb-8 md:py-16 px-4'>
         <p className='text-[#a08060] tracking-[4px] uppercase text-sm mb-2'>

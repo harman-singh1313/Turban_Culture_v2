@@ -14,6 +14,11 @@ const razorpay = new Razorpay({
 });
 
 // ================= CREATE BOOKING =================
+// ✅ CHANGED: Ab online payment gateway nahi chalta. Booking create
+// hote hi seedha CONFIRMED lead ki tarah save hoti hai aur confirmation
+// emails turant chali jaandiyan han (pehle ye sirf verifyPayment ke
+// baad hondi c). createOrder/verifyPayment flow ab is se disconnect
+// kar dita gaya hai — baaki poora structure/fields same rakhe han.
 
 export const createBooking = async (req, res) => {
   try {
@@ -68,22 +73,19 @@ export const createBooking = async (req, res) => {
     //calculating amount
     const totalAmount = Number(totalPrice || 0) + Number(travelCharge || 0);
 
-    const finalOnlinePaid = Number(onlinePaid || paidAmount || 0);
+    // ✅ Ab online payment nahi hoti, isliye onlinePaid hamesha 0 rahega
+    // aur poora amount pending/cash treat hoga (jo team event day pe
+    // ya baad mein manually collect karegi).
+    const finalOnlinePaid = 0;
 
     const finalPendingAmount = Math.max(totalAmount - finalOnlinePaid, 0);
 
-    let finalCashAmount = 0;
+    const finalCashAmount = finalPendingAmount;
 
-    if (paymentMode === "cash") {
-      finalCashAmount = finalPendingAmount;
-    } else {
-      finalCashAmount = 0;
-    }
-
-    // ── NOTE: yahan booking ALWAYS PENDING status ke saath banti hai,
-    // kyunki payment abhi verify nahi hui. Frontend flow: booking create
-    // (yahan) → razorpay order → payment → verifyPayment (neeche) jo
-    // CONFIRMED karta hai aur email/notification bhejta hai.
+    // ── NOTE: Booking hun seedha CONFIRMED lead ki tarah bind hoti hai,
+    // kyunki koi payment verify nahi karni. Frontend flow hun sirf:
+    // booking create (yahan) → receipt page. Razorpay order/verify wala
+    // step frontend se hata dita gaya hai.
     const booking = await Booking.create({
       name,
       phone,
@@ -102,11 +104,11 @@ export const createBooking = async (req, res) => {
       formId,
       paymentId,
       orderId,
-      paymentStatus: paymentStatus || "PENDING",
+      paymentStatus: "PENDING",
       totalPrice,
       totalAmount,
 
-      bookingStatus: "PENDING",
+      bookingStatus: "CONFIRMED",
 
       // ── NEW FIELDS ──
       paidAmount,
@@ -121,142 +123,8 @@ export const createBooking = async (req, res) => {
       pendingAmount: finalPendingAmount,
     });
 
-    // ❌ EMAIL YAHAN SE HATA DIYA GAYA —
-    // ab email sirf verifyPayment mein bhejenge, jab payment actually
-    // verify ho jaye. Isse "payment fail phir bhi confirmation mil gayi"
-    // wala issue solve ho jata hai.
-
-    return res.status(201).json({
-      success: true,
-      message: "Booking Created Successfully",
-      booking,
-    });
-  } catch (error) {
-    console.error("CREATE BOOKING ERROR:", error);
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// ================= GET BOOKINGS =================
-export const getBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find();
-    res.status(200).json({ success: true, bookings });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// ================= GET SINGLE BOOKING BY ID =================
-export const getBookingById = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id);
-
-    if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: "Booking not found",
-      });
-    }
-
-    res.status(200).json({ success: true, booking });
-  } catch (error) {
-    console.error("GET BOOKING BY ID ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-const generateFormId = () => {
-  return `FORM-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().split("-")[0].toUpperCase()}`;
-};
-
-// ================= CREATE ORDER =================
-export const createOrder = async (req, res) => {
-  try {
-    const Razorpay = (await import("razorpay")).default;
-
-    const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
-    });
-
-    const { amount, receipt } = req.body;
-    const formId = receipt || generateFormId();
-
-    const order = await razorpay.orders.create({
-      amount: amount * 100,
-      currency: "INR",
-      receipt: formId,
-      notes: { formId, booking_id: formId },
-    });
-
-    res.status(200).json({
-      success: true,
-      formId,
-      order,
-    });
-
-  } catch (error) {
-    console.error("CREATE ORDER ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// ================= VERIFY PAYMENT =================
-export const verifyPayment = async (req, res) => {
-  try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      formId,
-    } = req.body;
-
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(razorpay_order_id + "|" + razorpay_payment_id)
-      .digest("hex");
-
-    if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment Verification Failed",
-      });
-    }
-
-    // 🔥 Booking ko CONFIRMED update karo — payment genuinely verify ho chuki hai
-    const booking = await Booking.findOneAndUpdate(
-      { formId },
-      {
-        $set: {
-          paymentId: razorpay_payment_id,
-          orderId: razorpay_order_id,
-          paymentStatus: "SUCCESS",
-          bookingStatus: "CONFIRMED",
-          pendingAmount: 0,
-        },
-      },
-      { new: true },
-    );
-
-    if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: "Booking not found",
-      });
-    }
-
-    // ✅ EMAIL AB YAHAN — sirf payment verify hone ke BAAD hi jayegi
+    // ✅ Email ab yahin se jayegi — booking create hote hi, kyunki
+    // koi separate payment verification step nahi hai ab.
     try {
       await sendUserConfirmationEmail({
         to: booking.email,
@@ -311,6 +179,141 @@ export const verifyPayment = async (req, res) => {
       });
     } catch (emailErr) {
       console.log("Email error:", emailErr);
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Booking Created Successfully",
+      booking,
+    });
+  } catch (error) {
+    console.error("CREATE BOOKING ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ================= GET BOOKINGS =================
+export const getBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find();
+    res.status(200).json({ success: true, bookings });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ================= GET SINGLE BOOKING BY ID =================
+export const getBookingById = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    res.status(200).json({ success: true, booking });
+  } catch (error) {
+    console.error("GET BOOKING BY ID ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const generateFormId = () => {
+  return `FORM-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().split("-")[0].toUpperCase()}`;
+};
+
+// ================= CREATE ORDER =================
+// ⚠️ LEGACY / UNUSED: Frontend ab is endpoint ko call nahi karta
+// (online Razorpay payment flow hata dita gaya hai). Function yahin
+// chhad dita hai taake agar routes.js kahin isko import karda hai to
+// server crash na ho. Chaho to routes se is route ko vi hata sakde ho.
+export const createOrder = async (req, res) => {
+  try {
+    const Razorpay = (await import("razorpay")).default;
+
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const { amount, receipt } = req.body;
+    const formId = receipt || generateFormId();
+
+    const order = await razorpay.orders.create({
+      amount: amount * 100,
+      currency: "INR",
+      receipt: formId,
+      notes: { formId, booking_id: formId },
+    });
+
+    res.status(200).json({
+      success: true,
+      formId,
+      order,
+    });
+
+  } catch (error) {
+    console.error("CREATE ORDER ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ================= VERIFY PAYMENT =================
+// ⚠️ LEGACY / UNUSED: Frontend ab is endpoint ko call nahi karta.
+// Booking confirmation aur email ab createBooking mein hi ho jaandi hai.
+export const verifyPayment = async (req, res) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      formId,
+    } = req.body;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment Verification Failed",
+      });
+    }
+
+    const booking = await Booking.findOneAndUpdate(
+      { formId },
+      {
+        $set: {
+          paymentId: razorpay_payment_id,
+          orderId: razorpay_order_id,
+          paymentStatus: "SUCCESS",
+          bookingStatus: "CONFIRMED",
+          pendingAmount: 0,
+        },
+      },
+      { new: true },
+    );
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
     }
 
     return res.status(200).json({

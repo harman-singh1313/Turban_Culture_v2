@@ -154,7 +154,6 @@ function BookingForm() {
   const [distanceCharge, setDistanceCharge] = useState(0);
   const [includeTravelOnline, setIncludeTravelOnline] = useState(false);
   const [distanceKm, setDistanceKm] = useState(0);
-  const [showPayModal, setShowPayModal] = useState(false);
   const [emailError, setEmailError] = useState("");
 
   // ── ✅ FIX: freeTravelKm aur travelPricePerKm bhi backend to fetch karo ──
@@ -167,7 +166,6 @@ function BookingForm() {
     travelPricePerKm: 20,    // ✅ ADDED
   });
   const [pricingLoaded, setPricingLoaded] = useState(false);
-const [pricingBreakdown, setPricingBreakdown] = useState(null);
   useEffect(() => {
     const fetchPricing = async () => {
       try {
@@ -295,6 +293,13 @@ const engagementPrice =
     : 0;  const baseTotal = groomPrice + membersPrice + engagementPrice;
   const totalPrice = baseTotal + (includeTravelOnline ? distanceCharge : 0);
 
+// ─────────────────────────────────────────────
+// ✅ CHANGED: Ab yahan koi payment-choice modal (Online/Cash) nahi
+// aata. "Submit Booking" click karte hi seedha booking backend mein
+// LEAD ki tarah save ho jaandi hai aur receipt page pe navigate ho
+// jaandi hai — koi payment gateway ya modal step nahi hai. Baki
+// poora structure/UI/pricing same rakha hai.
+// ─────────────────────────────────────────────
 const handleSubmitClick = async () => {
   if (!validateEmail(formData.email)) return;
   if (formData.phone.length !== 10) return;
@@ -321,118 +326,52 @@ const handleSubmitClick = async () => {
   // 👇 direct quote calculate here
   const baseAmount = baseTotal;
   const travelChargeFinal = includeTravelOnline ? distanceCharge : 0;
-
   const totalAmount = baseAmount + travelChargeFinal;
-  const advanceAmount = Math.round(totalAmount * 0.3);
-  const cashPending = totalAmount - advanceAmount;
-
-  setPricingBreakdown({
-    baseAmount,
-    travelCharge: travelChargeFinal,
-    totalAmount,
-    advanceAmount,
-    cashPending,
-  });
-
-  setShowPayModal(true);
-};
-
-const handlePayConfirm = async (mode, amountFromModal) => {
-  setShowPayModal(false);
-
-  const breakdown = pricingBreakdown || {};
-  if (!pricingBreakdown) {
-    alert("Pricing not ready yet");
-    return;
-  }
-
-  const amountToPay =
-    mode === "online" ? breakdown.totalAmount : breakdown.advanceAmount;
 
   try {
     setLoading(true);
 
-    // ✅ STEP 1: Booking pehle hi bana do (PENDING status)
-const bookingRes = await axios.post(`${API_URL}/api/bookings`, {
-  formId: formData.formId,
-  name: formData.name,
-  phone: formData.phone,
-  email: formData.email,
-  eventType: formData.eventType,
-  customEvent: formData.customEvent,
-  days: formData.days,
-  startDate: formData.startDate,
-  location: formData.location,
-  bookingFor: formData.bookingFor,
-  paggMembers: formData.paggMembers,
-  paggStyle: formData.paggStyle,
-  paggTime: formData.paggTime,
-  preferredTime: formData.preferredTime,
+    // ✅ Booking ko seedha LEAD ki tarah save karo, koi modal / payment step nahi
+    const bookingRes = await axios.post(`${API_URL}/api/bookings`, {
+      formId: formData.formId,
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      eventType: formData.eventType,
+      customEvent: formData.customEvent,
+      days: formData.days,
+      startDate: formData.startDate,
+      location: formData.location,
+      bookingFor: formData.bookingFor,
+      paggMembers: formData.paggMembers,
+      paggStyle: formData.paggStyle,
+      paggTime: formData.paggTime,
+      preferredTime: formData.preferredTime,
 
-  totalPrice: amountToPay,
-  paymentMode: mode,
-  paidAmount: amountToPay,
-  paymentStatus: "PENDING",
+      totalPrice: totalAmount,
+      paymentMode: "cash",
+      paidAmount: 0,
+      paymentStatus: "PENDING",
 
-  travelCharge: pricingBreakdown.travelCharge,
-  onlinePaid: mode === "online" ? amountToPay : 0,
-  cashAmount: mode === "cash" ? amountToPay : 0,
-});
+      travelCharge: travelChargeFinal,
+      onlinePaid: 0,
+      cashAmount: 0,
+    });
 
     const bookingId = bookingRes.data.booking._id;
 
-    // ✅ STEP 2: Order create karo
-const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
-        amount: amountToPay,
-      receipt: formData.formId,
+    setSubmitted(true);
+    // ✅ ReceiptPage ko sirf bookingId nahi, poora `booking` object vi
+    // state mein chahida hai — nahi tan "Receipt Not Found" dikhta hai.
+    navigate("/receipt", {
+      state: {
+        bookingId,
+        booking: bookingRes.data.booking,
+        type: "form",
+      },
     });
-
-    const order = orderRes.data.order;
-
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: "INR",
-      order_id: order.id,
-
-      handler: async function (response) {
-        try {
-          const verifyRes = await axios.post(
-            `${API_URL}/api/bookings/verify-payment`,
-            {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              formId: formData.formId,
-            }
-          );
-
-          if (!verifyRes.data.success) {
-            alert("Payment verification failed");
-            return;
-          }
-
-          navigate("/receipt", { state: { bookingId } });
-        } catch (verifyErr) {
-          console.log("VERIFY ERROR:", verifyErr.response?.data || verifyErr.message);
-          alert(
-            "Payment verify error: " +
-              (verifyErr.response?.data?.message || verifyErr.message)
-          );
-        }
-      },
-
-      prefill: {
-        name: formData.name,
-        contact: formData.phone,
-      },
-
-      theme: { color: "#c9913a" },
-    };
-
-    new window.Razorpay(options).open();
   } catch (err) {
-    console.log("PAYMENT FLOW ERROR:", err.response?.data || err.message);
+    console.log("BOOKING SAVE ERROR:", err.response?.data || err.message);
     alert(
       "Something went wrong: " + (err.response?.data?.message || err.message)
     );
@@ -446,30 +385,16 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
 
   return (
     <>
-      {showPayModal && (
-       <PaymentChoiceModal
-  breakdown={pricingBreakdown || {
-    baseAmount: 0,
-    travelCharge: 0,
-    totalAmount: 0,
-    advanceAmount: 0,
-    cashPending: 0,
-  }}
-  onClose={() => setShowPayModal(false)}
-  onConfirm={handlePayConfirm}
-/>
-      )}
+      <div className="bg-white border border-[#c9913a]/30 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 w-full max-w-2xl mx-auto">
 
-      <div className="bg-white border border-[#c9913a]/30 rounded-2xl shadow-lg p-6 w-full max-w-2xl">
-
-        <div className="text-center mb-5">
-          <span className="text-[#c9913a] text-lg block mb-1">✦</span>
-          <h2 className="text-xl font-serif text-gray-800 tracking-wide">Booking Form</h2>
+        <div className="text-center mb-4 sm:mb-5">
+          <span className="text-[#c9913a] text-base sm:text-lg block mb-1">✦</span>
+          <h2 className="text-lg sm:text-xl font-serif text-gray-800 tracking-wide">Booking Form</h2>
           <div className="w-10 h-px bg-[#c9913a] opacity-40 mx-auto mt-2" />
         </div>
 
-        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-2">👤 Client Details</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-1.5 sm:mb-2">👤 Client Details</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
           <InputField label="Full Name" placeholder="Full Name" value={formData.name} onChange={(e) => update("name", e.target.value)} />
           <InputField
             label="Contact Number" type="tel" placeholder="+91 9876543210" value={formData.phone}
@@ -480,11 +405,11 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
             label="Email" type="email" placeholder="yourmail@gmail.com" value={formData.email}
             onChange={(e) => { update("email", e.target.value); validateEmail(e.target.value); }}
           />
-          {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+          {emailError && <p className="text-red-500 text-xs sm:text-sm mt-1 col-span-full">{emailError}</p>}
         </div>
 
-        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-2">🎊 Event Type</p>
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-1.5 mb-2">
+        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-1.5 sm:mb-2">🎊 Event Type</p>
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-1.5 mb-2">
           {EVENT_TYPES.map((ev) => (
             <EventCard key={ev.name} name={ev.name} icon={ev.icon} selected={formData.eventType === ev.name} onClick={() => update("eventType", ev.name)} />
           ))}
@@ -496,19 +421,19 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
           </div>
         )}
 
-        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mt-4 mb-2">📅 Duration & Dates</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mt-3 sm:mt-4 mb-1.5 sm:mb-2">📅 Duration & Dates</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3 sm:mb-4">
           <div className="bg-[#faf8f5] border border-[#c9913a]/25 rounded-xl px-3 py-2 flex items-center justify-between">
             <button type="button" className={counterBtn} onClick={() => update("days", Math.max(1, formData.days - 1))}>−</button>
-            <span className="text-lg font-serif text-gray-800">{formData.days}</span>
+            <span className="text-base sm:text-lg font-serif text-gray-800">{formData.days}</span>
             <button type="button" className={counterBtn} onClick={() => update("days", formData.days + 1)}>+</button>
           </div>
           <InputField label="Start Date" type="date" value={formData.startDate} onChange={(e) => update("startDate", e.target.value)} />
           <InputField label="End Date" type="date" value={getEndDate()} readOnly />
         </div>
 
-        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-2">⏰ Timing</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-1.5 sm:mb-2">⏰ Timing</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
           <div className="flex flex-col gap-1">
             <label className="text-[10px] text-[#a08060] tracking-wide">Time Preference</label>
             <select value={formData.paggTime} onChange={(e) => update("paggTime", e.target.value)} className="bg-white border border-[#c9913a]/25 rounded-xl px-3 py-2.5 text-xs">
@@ -520,15 +445,15 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
           <InputField label="Preferred Time" type="time" value={formData.preferredTime} onChange={(e) => update("preferredTime", e.target.value)} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
           <div>
-            <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-2">📍 Location</p>
+            <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-1.5 sm:mb-2">📍 Location</p>
             <div className="relative">
               <input
                 placeholder="Venue / Location"
                 value={locationInput}
                 onChange={(e) => { setLocationInput(e.target.value); update("location", e.target.value); searchLocation(e.target.value); }}
-                className="w-full bg-[#faf8f5] border border-[#c9913a]/25 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#c9913a]"
+                className="w-full min-w-0 bg-[#faf8f5] border border-[#c9913a]/25 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#c9913a]"
               />
               {locationSuggestions.length > 0 && (
                 <div className="absolute z-10 w-full bg-white border border-[#c9913a]/20 rounded-xl mt-1 shadow-lg max-h-48 overflow-y-auto">
@@ -546,9 +471,9 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
             </div>
 
             {distanceCharge > 0 && (
-              <div className="mt-3 bg-[#fff8ef] border border-[#c9913a]/30 rounded-xl p-3">
+              <div className="mt-3 bg-[#fff8ef] border border-[#c9913a]/30 rounded-xl p-2.5 sm:p-3">
                 <p className="text-[10px] uppercase tracking-widest text-[#a08060] mb-2">🚗 Travel Charge</p>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <p className="text-sm font-semibold text-[#b18236]">₹{distanceCharge}</p>
                     {/* ✅ FIX: distanceKm + freeTravelKm display */}
@@ -558,7 +483,7 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
                         : "Distance charge applicable"}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
+                  <div className="flex flex-col items-start sm:items-end gap-1">
                     <label className="flex items-center gap-2 cursor-pointer select-none">
                       <span className="text-[10px] text-gray-500">
                         {includeTravelOnline ? "Added to online payment" : "Pay later (cash)"}
@@ -580,8 +505,8 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
           </div>
 
           <div>
-            <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-2">👑 Booking For</p>
-            <div className="flex flex-col gap-2">
+            <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-1.5 sm:mb-2">👑 Booking For</p>
+            <div className="flex flex-col gap-1.5 sm:gap-2">
               {BOOKING_FOR.map((item) => {
                 const isSelected = formData.bookingFor.includes(item.value);
                 const isGroomDisabled = item.value === "groom" && !weddingEvents.includes(formData.eventType);
@@ -601,15 +526,15 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
           </div>
         </div>
 
-        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-2">🪯 Turban Details</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+        <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-1.5 sm:mb-2">🪯 Turban Details</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 mb-4 sm:mb-5">
           {(formData.bookingFor.includes("barat") || formData.bookingFor.includes("engagement")) && (
-            <div className="bg-[#faf8f5] border border-[#c9913a]/25 rounded-xl px-3 py-3">
-              <div className="flex justify-between items-center mb-3">
+            <div className="bg-[#faf8f5] border border-[#c9913a]/25 rounded-xl px-3 py-2.5 sm:py-3">
+              <div className="flex justify-between items-center mb-2 sm:mb-3">
                 <span className="text-xs text-[#a08060]">Members</span>
                 <div className="flex items-center gap-2">
                   <button type="button" className={counterBtn} onClick={() => update("paggMembers", Math.max(1, formData.paggMembers - 1))}>−</button>
-                  <span className="text-lg font-serif text-gray-800">{formData.paggMembers}</span>
+                  <span className="text-base sm:text-lg font-serif text-gray-800">{formData.paggMembers}</span>
                   <button type="button" className={counterBtn} onClick={() => update("paggMembers", formData.paggMembers + 1)}>+</button>
                 </div>
               </div>
@@ -632,50 +557,50 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
           </div>
         </div>
 
-        <div className="bg-[#fff8ef] border border-[#c9913a]/25 rounded-2xl p-4 mb-5">
-          <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-3">💰 Price Summary</p>
-          <div className="space-y-3 text-sm">
+        <div className="bg-[#fff8ef] border border-[#c9913a]/25 rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-4 sm:mb-5">
+          <p className="text-[#c9913a] text-[9px] tracking-widest uppercase mb-2.5 sm:mb-3">💰 Price Summary</p>
+          <div className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
             {formData.bookingFor.includes("groom") && (
-              <div className="flex justify-between border-b border-[#c9913a]/10 pb-2">
+              <div className="flex justify-between gap-2 border-b border-[#c9913a]/10 pb-2">
                 <span>Groom Styling</span>
-                <span className="font-semibold text-[#b18236]">₹{groomPrice}</span>
+                <span className="font-semibold text-[#b18236] shrink-0">₹{groomPrice}</span>
               </div>
             )}
             {formData.bookingFor.includes("barat") && (
-              <div className="flex justify-between border-b border-[#c9913a]/10 pb-2">
+              <div className="flex justify-between gap-2 border-b border-[#c9913a]/10 pb-2">
                 <span>Barat Members ({formData.paggMembers} × ₹{pricing.memberPrice} × {formData.days} days)</span>
-                <span className="font-semibold text-[#b18236]">₹{membersPrice}</span>
+                <span className="font-semibold text-[#b18236] shrink-0">₹{membersPrice}</span>
               </div>
             )}
             {formData.bookingFor.includes("engagement") && (
-              <div className="flex justify-between border-b border-[#c9913a]/10 pb-2">
+              <div className="flex justify-between gap-2 border-b border-[#c9913a]/10 pb-2">
                 <span>Engagement Members ({formData.paggMembers} × ₹{pricing.engagementPrice} × {formData.days} days)</span>
-                <span className="font-semibold text-[#b18236]">₹{engagementPrice}</span>
+                <span className="font-semibold text-[#b18236] shrink-0">₹{engagementPrice}</span>
               </div>
             )}
             {distanceCharge > 0 && (
-              <div className="flex justify-between border-b border-[#c9913a]/10 pb-2">
+              <div className="flex justify-between gap-2 border-b border-[#c9913a]/10 pb-2">
                 <span className="text-gray-600">
                   Travel Charge ({distanceKm} km · ₹{pricing.travelPricePerKm}/km){" "}
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${includeTravelOnline ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-600"}`}>
                     {includeTravelOnline ? "Online" : "Pay Later"}
                   </span>
                 </span>
-                <span className="font-semibold text-[#b18236]">₹{distanceCharge}</span>
+                <span className="font-semibold text-[#b18236] shrink-0">₹{distanceCharge}</span>
               </div>
             )}
-            <div className="flex justify-between pt-2">
+            <div className="flex justify-between gap-2 pt-2">
               <span className="font-semibold text-[#3d2e1e]">
                 Total {includeTravelOnline ? "" : distanceCharge > 0 ? "(excl. travel)" : ""}
               </span>
-              <span className="text-lg font-bold text-[#b18236]">₹{totalPrice}</span>
+              <span className="text-base sm:text-lg font-bold text-[#b18236]">₹{totalPrice}</span>
             </div>
           </div>
         </div>
 
         {distanceCharge > 0 && !includeTravelOnline && (
-          <div className="flex items-start gap-3 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 mb-4">
-            <span className="text-lg mt-0.5">🚗</span>
+          <div className="flex items-start gap-2.5 sm:gap-3 bg-orange-50 border border-orange-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 mb-3 sm:mb-4">
+            <span className="text-base sm:text-lg mt-0.5">🚗</span>
             <div>
               <p className="text-xs font-bold text-orange-700 tracking-wide">Travel Charge — Pay Later</p>
               <p className="text-[11px] text-orange-600 mt-0.5">
@@ -688,7 +613,7 @@ const orderRes = await axios.post(`${API_URL}/api/bookings/create-order`, {
         <button
           onClick={handleSubmitClick}
           disabled={loading}
-          className={`w-full py-2.5 rounded-xl font-medium tracking-widest uppercase text-xs transition-all duration-200
+          className={`w-full py-3 sm:py-2.5 rounded-xl font-medium tracking-widest uppercase text-xs transition-all duration-200
           ${submitted ? "bg-green-500 text-white" : "bg-[#c9913a] text-white hover:-translate-y-0.5 hover:shadow-lg"}`}
         >
           {loading ? "Processing..." : submitted ? "✓ Booking Confirmed!" : "✦ Submit Booking"}

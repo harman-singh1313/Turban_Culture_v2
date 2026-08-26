@@ -51,27 +51,12 @@ function ReceiptPage() {
 
   const isPackage = type === "package";
 
-  // ── Payment breakdown ──────────────────────────────────
-  const isCash       = booking.paymentMode === "cash";
-  const baseTotal    = Number(booking.totalPrice || selectedPackage?.price || 0);
-  const paidAmount   = booking.paidAmount != null
-    ? Number(booking.paidAmount)
-    : Number(booking.totalPrice || selectedPackage?.price || 0);
-  const travelCharge = Number(booking.travelCharge || booking.distanceCharge || 0);
-
-  // ✅ FIX: Quick Booking model vich field "travelIncludedOnline" hai
-  const travelPaidOnline =
-    booking.travelIncludedOnline === true ||
-    booking.travelIncludedOnline === "true" ||
-    booking.travelChargePaymentStatus === "PAID";
-
-  const grandTotal    = baseTotal + travelCharge;
-  const pendingBase   = Math.max(baseTotal - paidAmount, 0);
-  const pendingTravel = travelCharge > 0 && !travelPaidOnline ? travelCharge : 0;
-  const totalPending  = pendingBase + pendingTravel;
+  // ── Simple pricing — no cash/online/advance/pending split ──
+  const packagePrice = Number(booking.totalPrice || selectedPackage?.price || 0);
+  const travelCharge  = Number(booking.travelCharge || booking.distanceCharge || 0);
+  const totalAmount   = packagePrice + travelCharge;
 
   // ── Row data ────────────────────────────────────────────
-  // ✅ FIX: Package rows vich sahi fields — address, date, session, time
   const packageRows = [
     ["Name",     booking.name],
     ["Phone",    booking.phone],
@@ -115,7 +100,7 @@ function ReceiptPage() {
       {/* Success Header */}
       <div style={{ textAlign: "center", marginBottom: "28px" }}>
         <div style={{ width: "62px", height: "62px", backgroundColor: "#dcfce7", color: "#16a34a", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: "28px" }}>✓</div>
-        <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#2f2418", margin: "0 0 6px" }}>Payment Successful</h1>
+        <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#2f2418", margin: "0 0 6px" }}>Booking Confirmed</h1>
         <p style={{ color: "#6b7280", fontSize: "14px", margin: 0 }}>Your booking is confirmed. Here is your receipt.</p>
       </div>
 
@@ -179,21 +164,14 @@ function ReceiptPage() {
 
         <hr style={{ border: "none", borderTop: "1px dashed #d1d5db", margin: "20px 0" }} />
 
-        {/* Payment Summary */}
+        {/* Payment Summary — SIMPLIFIED: no cash/online/advance/pending */}
         <p style={{ fontSize: "11px", fontWeight: "700", color: "#9ca3af", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Payment Summary</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "14px" }}>
 
           <div style={detailRow}>
-            <span style={labelStyle}>Payment Mode</span>
-            <span style={{ fontSize: "12px", fontWeight: "700", padding: "3px 12px", borderRadius: "20px", backgroundColor: isCash ? "#fef9c3" : "#dcfce7", color: isCash ? "#854d0e" : "#15803d" }}>
-              {isCash ? "💵 Cash (Advance Paid)" : "💳 Online"}
-            </span>
-          </div>
-
-          <div style={detailRow}>
-            <span style={{ color: "#4b5563" }}>Booking Amount</span>
-            <span style={{ color: "#1f2937" }}>₹{baseTotal}</span>
+            <span style={{ color: "#4b5563" }}>Package Price</span>
+            <span style={{ color: "#1f2937" }}>₹{packagePrice}</span>
           </div>
 
           {travelCharge > 0 && (
@@ -206,78 +184,15 @@ function ReceiptPage() {
                   </p>
                 )}
               </div>
-              <div style={{ textAlign: "right" }}>
-                <span style={{ color: "#1f2937" }}>₹{travelCharge} </span>
-                <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "20px", backgroundColor: travelPaidOnline ? "#dcfce7" : "#fff7ed", color: travelPaidOnline ? "#15803d" : "#ea580c" }}>
-                  {travelPaidOnline ? "Paid Online" : "Cash Pending"}
-                </span>
-              </div>
+              <span style={{ color: "#1f2937" }}>₹{travelCharge}</span>
             </div>
           )}
 
-          <div style={{ ...detailRow, borderTop: "1px dashed #d1d5db", paddingTop: "10px" }}>
-            <span style={{ fontWeight: "700", color: "#1f2937" }}>Grand Total</span>
-            <span style={{ fontWeight: "800", color: "#1f2937" }}>₹{grandTotal}</span>
+          <div style={{ backgroundColor: goldLight, border: `1px solid ${goldBorder}`, borderRadius: "10px", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontWeight: "700", color: "#7a4f10" }}>Total Amount</span>
+            <span style={{ fontWeight: "800", fontSize: "20px", color: gold }}>₹{totalAmount}</span>
           </div>
 
-          <div style={{ backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "10px", padding: "12px 16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontWeight: "700", color: "#15803d" }}>✓ Amount Paid (Online)</span>
-              <span style={{ fontWeight: "800", fontSize: "18px", color: "#15803d" }}>₹{paidAmount}</span>
-            </div>
-          </div>
-
-          {totalPending > 0 && (
-            <div style={{ backgroundColor: "#fff7ed", border: "1px solid #fed7aa", borderRadius: "10px", padding: "12px 16px", display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontWeight: "700", color: "#ea580c" }}>⏳ Total Pending (Cash)</span>
-                <span style={{ fontWeight: "800", fontSize: "18px", color: "#ea580c" }}>₹{totalPending}</span>
-              </div>
-              <div style={{ borderTop: "1px dashed #fed7aa", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "5px", fontSize: "12px", color: "#c2410c" }}>
-                {pendingBase > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Remaining booking amount (cash on event day)</span>
-                    <span style={{ fontWeight: "700" }}>₹{pendingBase}</span>
-                  </div>
-                )}
-                {pendingTravel > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Travel charge (cash on event day)</span>
-                    <span style={{ fontWeight: "700" }}>₹{pendingTravel}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {pendingBase > 0 && (
-            <div style={{ backgroundColor: "#fefce8", border: "1px solid #fef08a", borderRadius: "10px", padding: "12px 16px" }}>
-              <p style={{ fontSize: "11px", fontWeight: "700", color: "#713f12", textTransform: "uppercase", letterSpacing: "1px", margin: "0 0 10px" }}>
-                Cash Booking Breakdown
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px", color: "#92400e" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span>30% Advance Paid Online</span>
-                  <span style={{ fontWeight: "700" }}>₹{paidAmount}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span>Remaining Balance (Cash on Event Day)</span>
-                  <span style={{ fontWeight: "700" }}>₹{pendingBase}</span>
-                </div>
-                {pendingTravel > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px dashed #fde68a", paddingTop: "6px" }}>
-                    <span>+ Travel Charge (Cash on Event Day)</span>
-                    <span style={{ fontWeight: "700" }}>₹{pendingTravel}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          <div style={detailRow}>
-            <span style={labelStyle}>Payment Status</span>
-            <span style={{ fontWeight: "700", color: "#16a34a" }}>{booking.paymentStatus || "SUCCESS"}</span>
-          </div>
           <div style={detailRow}>
             <span style={labelStyle}>Booking ID</span>
             <span style={{ fontSize: "12px", color: "#9ca3af" }}>#{bookingId}</span>

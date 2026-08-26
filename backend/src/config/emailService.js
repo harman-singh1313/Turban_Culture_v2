@@ -9,23 +9,20 @@ const transporter = nodemailer.createTransport({
 });
 
 // ================= USER EMAIL =================
+// ✅ SIMPLIFIED: Sirf lead/form confirmation — koi payment/advance/pending nahi
 export const sendUserConfirmationEmail = async ({
   to,
   name,
   bookingId,
-  totalPrice,
+  totalPrice = 0,
   eventType,
   packageName,
   travelCharge = 0,
-  totalAmount = 0,
-  onlinePaid = 0,
-  cashAmount = 0,
-  pendingAmount = 0,
-  paymentMode = "",
-  paymentStatus = "",
-  advancePercent = 30,
 }) => {
   const bookingType = eventType || packageName || "Booking";
+
+  // Total Amount hamesha Package Price + Travel Charge
+  const totalAmount = Number(totalPrice) + Number(travelCharge);
 
   await transporter.sendMail({
     from: `"Turban Culture" <${process.env.EMAIL_USER}>`,
@@ -59,17 +56,6 @@ export const sendUserConfirmationEmail = async ({
 
           <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
 
-          <hr />
-
-          <p><strong>Advance Paid (${advancePercent}%):</strong> ₹${onlinePaid}</p>
-
-
-          <p><strong>Pending Amount:</strong> ₹${pendingAmount}</p>
-
-          <p><strong>Payment Method:</strong> ${paymentMode}</p>
-
-          <p><strong>Payment Status:</strong> ${paymentStatus}</p>
-
         </div>
 
         <p style="margin-top:20px;">
@@ -82,26 +68,22 @@ export const sendUserConfirmationEmail = async ({
 };
 
 // ================= OWNER EMAIL =================
+// ✅ SIMPLIFIED: Sirf lead/form notification — koi payment/advance/pending nahi
 export const sendOwnerNotificationEmail = async ({
   name,
   phone,
   email,
   bookingId,
-  totalPrice,
+  totalPrice = 0,
   eventType,
   packageName,
   location,
   travelCharge = 0,
-
-  totalAmount = 0,
-  onlinePaid = 0,
-  cashAmount = 0,
-  pendingAmount = 0,
-  paymentMode = "",
-  paymentStatus = "",
-  advancePercent = 30,
 }) => {
   const bookingType = eventType || packageName || "Booking";
+
+  // Total Amount hamesha Package Price + Travel Charge
+  const totalAmount = Number(totalPrice) + Number(travelCharge);
 
   await transporter.sendMail({
     from: `"Turban Culture Bookings" <${process.env.EMAIL_USER}>`,
@@ -154,27 +136,6 @@ export const sendOwnerNotificationEmail = async ({
           <tr>
             <td><strong>Total Amount</strong></td>
             <td>₹${totalAmount}</td>
-          </tr>
-
-          <tr>
-            <td><strong>Advance (${advancePercent}%)</strong></td>
-            <td>₹${onlinePaid}</td>
-          </tr>
-
-
-          <tr>
-            <td><strong>Pending Amount</strong></td>
-            <td>₹${pendingAmount}</td>
-          </tr>
-
-          <tr>
-            <td><strong>Payment Method</strong></td>
-            <td>${paymentMode}</td>
-          </tr>
-
-          <tr>
-            <td><strong>Payment Status</strong></td>
-            <td>${paymentStatus}</td>
           </tr>
 
           <tr>
