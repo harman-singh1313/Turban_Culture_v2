@@ -38,7 +38,9 @@ const ServiceCard = ({
           setVisible(true);
         }
       },
-      { threshold: 0.2 }
+      {
+        threshold: 0.2,
+      }
     );
 
     if (cardRef.current) {
@@ -75,20 +77,19 @@ const ServiceCard = ({
     navigate(path);
   };
 
-  /* ---------------- Dynamic Mobile Styles ---------------- */
-  const mobileStackStyle = isMobile
-    ? {
-        top: `${120 + index * 16}px`,
-        zIndex: index,
-      }
-    : {};
+  /* ---------------- Mobile Sticky Style ---------------- */
+const mobileStackStyle = isMobile
+  ? {
+      top: `${120 + index * 16}px`,
+      zIndex: index + 1,
+      position: "sticky",
+    }
+  : {};
 
   return (
     <div
       ref={cardRef}
       style={mobileStackStyle}
-      onMouseEnter={() => !isMobile && setFlipped(true)}
-      onMouseLeave={() => !isMobile && setFlipped(false)}
       className={`
         w-full
         h-[420px]
@@ -99,10 +100,16 @@ const ServiceCard = ({
 
         ${
           isMobile
-            ? `sticky ${index === total - 1 ? "mb-0" : "mb-3"}`
+            ? `
+              mb-3
+            `
             : `
               [perspective:1000px]
-              ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}
+              ${
+                visible
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }
             `
         }
       `}
@@ -117,8 +124,14 @@ const ServiceCard = ({
 
           ${
             isMobile
-              ? "shadow-[0_-2px_0_0_#f4c46c,0_10px_30px_rgba(0,0,0,0.35)]"
-              : "[transform-style:preserve-3d] transition-transform duration-1000"
+              ? `
+                shadow-[0_-2px_0_0_#f4c46c,0_10px_30px_rgba(0,0,0,0.35)]
+              `
+              : `
+                [transform-style:preserve-3d]
+                transition-transform
+                duration-1000
+              `
           }
 
           ${
@@ -127,6 +140,16 @@ const ServiceCard = ({
               : "[transform:rotateY(0deg)]"
           }
         `}
+        onMouseEnter={() => {
+          if (!isMobile) {
+            setFlipped(true);
+          }
+        }}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setFlipped(false);
+          }
+        }}
       >
         {/* ================= FRONT SIDE ================= */}
         <div
@@ -151,15 +174,45 @@ const ServiceCard = ({
           />
 
           {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+          <div
+            className="
+              pointer-events-none
+              absolute
+              inset-0
+              bg-gradient-to-t
+              from-black
+              via-black/40
+              to-transparent
+            "
+          />
 
           {/* Content */}
-          <div className="absolute bottom-0 left-0 right-0 p-5">
+          <div
+            className="
+              absolute
+              bottom-0
+              left-0
+              right-0
+              z-20
+              p-5
+            "
+          >
+            {/* Small Heading */}
             <p className="text-[10px] uppercase tracking-[0.22em] text-[#f4c46c]">
               Turban Service
             </p>
 
-            <h2 className="mt-1 font-serif text-[20px] font-semibold leading-tight text-white">
+            {/* Title */}
+            <h2
+              className="
+                mt-1
+                font-serif
+                text-[20px]
+                font-semibold
+                leading-tight
+                text-white
+              "
+            >
               {title}
             </h2>
 
@@ -180,37 +233,62 @@ const ServiceCard = ({
 
             {/* ================= MOBILE BUTTONS ================= */}
             {isMobile && (
-              <div className="relative z-10 mt-4 flex gap-2">
+              <div
+                className="
+                  relative
+                  z-[999]
+                  mt-4
+                  flex
+                  gap-2
+                  pointer-events-auto
+                "
+              >
+                {/* Get Quote */}
                 <button
                   type="button"
-                  onClick={() => goTo("/booking")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goTo("/booking");
+                  }}
                   className="
+                    relative
+                    z-[1000]
                     flex-1
+                    cursor-pointer
                     rounded-full
                     bg-[#c9913a]
                     py-2.5
                     text-[11px]
                     font-bold
                     text-black
-                    transition-transform
+                    transition
+                    duration-200
                     active:scale-95
                   "
                 >
                   Get Quote
                 </button>
 
+                {/* Gallery */}
                 <button
                   type="button"
-                  onClick={() => goTo("/gallery")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goTo("/gallery");
+                  }}
                   className="
+                    relative
+                    z-[1000]
                     flex-1
+                    cursor-pointer
                     rounded-full
                     bg-white
                     py-2.5
                     text-[11px]
                     font-bold
                     text-black
-                    transition-transform
+                    transition
+                    duration-200
                     active:scale-95
                   "
                 >
@@ -241,24 +319,50 @@ const ServiceCard = ({
               [transform:rotateY(180deg)]
             "
           >
+            {/* Service Details */}
             <div>
-              <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-[#c9913a]">
+              <p
+                className="
+                  mb-2
+                  text-[10px]
+                  uppercase
+                  tracking-[0.22em]
+                  text-[#c9913a]
+                "
+              >
                 Service Details
               </p>
 
-              <h3 className="mb-4 font-serif text-xl font-semibold text-[#2f2418]">
+              <h3
+                className="
+                  mb-4
+                  font-serif
+                  text-xl
+                  font-semibold
+                  text-[#2f2418]
+                "
+              >
                 {title}
               </h3>
 
-              <ul className="space-y-2 text-sm text-[#6b5b4b]">
+              <ul
+                className="
+                  space-y-2
+                  text-sm
+                  text-[#6b5b4b]
+                "
+              >
                 {features.map((feature, featureIndex) => (
-                  <li key={featureIndex}>✓ {feature}</li>
+                  <li key={featureIndex}>
+                    ✓ {feature}
+                  </li>
                 ))}
               </ul>
             </div>
 
             {/* Desktop Buttons */}
             <div className="flex gap-2 pt-4">
+              {/* Get Quote */}
               <button
                 type="button"
                 onClick={() => goTo("/booking")}
@@ -270,11 +374,14 @@ const ServiceCard = ({
                   text-xs
                   font-semibold
                   text-white
+                  transition
+                  hover:scale-105
                 "
               >
                 Get Quote
               </button>
 
+              {/* Gallery */}
               <button
                 type="button"
                 onClick={() => goTo("/gallery")}
