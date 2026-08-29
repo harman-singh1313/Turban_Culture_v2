@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { Helmet } from "react-helmet-async";
 import Main from '../Components/Main'
 import ServiceCard from '../Components/ServiceCard'
 import turban1 from '../assets/turban1.webp'
@@ -37,6 +38,18 @@ const Services = () => {
   }, [])
 
   return (
+    <>
+
+    <Helmet>
+  <title>Wedding Turban & Pagg Tying Services in Rania & Sirsa | Turban Culture</title>
+  <meta
+    name="description"
+    content="Explore professional groom turban, Punjabi pagg, Jodhpuri safa and baraati turban tying services in Rania, Sirsa and nearby areas."
+  />
+    <link rel="canonical" href="https://turbanculture.com/Services" />
+
+</Helmet>
+
     <div className='bg-[#fdfaf6]'>
 
       <Main
@@ -205,6 +218,7 @@ const Services = () => {
 
             <ServiceFAQ/>
     </div>
+        </>
   )
 }
 

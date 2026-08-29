@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Helmet } from "react-helmet-async";
 import axios from 'axios'
 import Slider from '../Components/Slider'
 
@@ -104,6 +105,18 @@ const Gallery = () => {
   // ================= RENDER =================
 
   return (
+    <>
+<Helmet>
+  <title>Wedding Turban Gallery | Punjabi Turban & Groom Safa Designs</title>
+  <meta
+    name="description"
+    content="Explore wedding turban, Punjabi pagg, groom safa and baraati turban styles from Turban Culture."
+  />
+
+    <link rel="canonical" href="https://turbanculture.com/Gallery" />
+
+</Helmet>
+
     <div className='min-h-screen bg-[#fdfaf6]'>
 
       {/* HERO SLIDER */}
@@ -455,6 +468,7 @@ const Gallery = () => {
       )}
 
     </div>
+        </>
   )
 }
 

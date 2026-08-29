@@ -249,7 +249,7 @@ const Main = (props) => {
           >
             <img
               src={props.image}
-              alt="Professional Punjabi Pagg, Pagri & Wedding Turban Tying Service"
+              alt="Punjabi wedding turban tying style by Turban Culture in Rania Sirsa"
               width="736"
               height="904"
               loading="eager"

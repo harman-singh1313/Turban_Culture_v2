@@ -1,4 +1,5 @@
 import BookingForm from '../Components/BookingForm'
+import { Helmet } from "react-helmet-async";
 import PackagesCard from '../Components/PackagesCard'
 import { Link } from 'react-router-dom'
 import ServiceCard from '../Components/ServiceCard'
@@ -43,6 +44,17 @@ const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/pricing`)
   }
 
   return (
+    <>
+<Helmet>
+  <title>Book Wedding Turban Tying Service in Rania & Sirsa | Turban Culture</title>
+  <meta
+    name="description"
+    content="Book professional groom turban, Punjabi pagg and wedding safa tying services in Rania, Sirsa and nearby areas."
+  />
+    <link rel="canonical" href="https://turbanculture.com/Booking" />
+
+</Helmet>
+
     <div className="bg-[#fdfaf6] min-h-screen">
 
       {/* ── Hero Section ── */}
@@ -166,6 +178,7 @@ const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/pricing`)
       </div>
 
     </div>
+        </>
   )
 }
 

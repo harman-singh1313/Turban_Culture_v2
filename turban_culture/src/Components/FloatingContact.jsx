@@ -15,7 +15,7 @@ export default function FloatingContact() {
       )}
 
       {/* CONTAINER */}
-      <div className="fixed bottom-15 right-10 z-[9999] flex flex-col items-end gap-3">
+      <div className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end gap-3">
         {/* SLIDE UP MENU */}
         <div
           className={`flex flex-col gap-2.5 transition-all duration-300 ease-out ${
