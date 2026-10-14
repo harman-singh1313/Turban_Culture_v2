@@ -5,6 +5,7 @@ import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import ScrollToTop from "./Components/ScrollToTop";
 import FloatingContact from "./Components/FloatingContact";
+import GoogleReviewPopup from "./Components/GoogleReviewPopup";
 
 // PUBLIC
 const Home = lazy(() => import("./Pages/Home"));
@@ -36,6 +37,7 @@ const Layout = () => (
     </div>
     <Footer />
     <FloatingContact/>
+    <GoogleReviewPopup/>
   </>
 );
 

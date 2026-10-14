@@ -5,12 +5,7 @@ import {
   CalendarDays,
   Shirt,
   ShoppingBag,
-  Package,
-  Users,
-  Star,
   Settings,
-  BarChart3,
-  Bell,
 } from "lucide-react";
 
 const menuItems = [
@@ -19,11 +14,11 @@ const menuItems = [
     path: "/admin",
     icon: LayoutDashboard,
   },
-{
-  title: "Bookings",
-  path: "/admin/bookings",
-  icon: CalendarDays,
-},
+  {
+    title: "Bookings",
+    path: "/admin/bookings",
+    icon: CalendarDays,
+  },
   {
     title: "Turban Services",
     path: "/admin/services",
@@ -35,40 +30,15 @@ const menuItems = [
     icon: ShoppingBag,
   },
   {
-    title:"Slider Manager",
-    path:"/admin/sliderManager",
-     icon: ShoppingBag,
+    title: "Slider Manager",
+    path: "/admin/sliderManager",
+    icon: ShoppingBag,
   },
   {
-    title:"Video Manager",
-    path:"/admin/videoManager",
-     icon: ShoppingBag,
+    title: "Video Manager",
+    path: "/admin/videoManager",
+    icon: ShoppingBag,
   },
-  // {
-  //   title: "Orders",
-  //   path: "/admin/orders",
-  //   icon: Package,
-  // },
-  // {
-  //   title: "Customers",
-  //   path: "/admin/customers",
-  //   icon: Users,
-  // },
-  // {
-  //   title: "Reviews",
-  //   path: "/admin/reviews",
-  //   icon: Star,
-  // },
-  // {
-  //   title: "Analytics",
-  //   path: "/admin/analytics",
-  //   icon: BarChart3,
-  // },
-  // {
-  //   title: "Notifications",
-  //   path: "/admin/notifications",
-  //   icon: Bell,
-  // },
   {
     title: "Settings",
     path: "/admin/settings",
@@ -76,35 +46,38 @@ const menuItems = [
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ onNavigate }) => {
   return (
     <aside
       className="
-      w-[280px]
-      min-h-screen
-      bg-gradient-to-b
-      from-[#c9913a]
-      to-[#b18236]
-      text-white
-      flex
-      flex-col
-      justify-between
-      shadow-xl
-    "
+        flex
+        h-full
+        w-full
+        flex-col
+        justify-between
+        bg-gradient-to-b
+        from-[#c9913a]
+        to-[#b18236]
+        text-white
+        shadow-xl
+      "
     >
-      {/* Logo */}
-      <div>
-        <div className="px-6 py-8 border-b border-white/10">
+      {/* ================= TOP SECTION ================= */}
+      <div className="flex-1 overflow-y-auto">
+
+        {/* Logo */}
+        <div className="border-b border-white/10 px-6 py-7">
           <h1 className="text-3xl font-bold tracking-wide">
             TURBAN
           </h1>
+
           <p className="text-xl font-light">
             CULTURE
           </p>
         </div>
 
-        {/* Menu */}
-        <div className="p-4 space-y-2">
+        {/* ================= MENU ================= */}
+        <nav className="space-y-2 p-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -112,52 +85,74 @@ const Sidebar = () => {
               <NavLink
                 key={item.title}
                 to={item.path}
+                end={item.path === "/admin"}
+                onClick={onNavigate}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                  ${
-                    isActive
-                      ? "bg-[#d9a74d] shadow-md"
-                      : "hover:bg-white/10"
-                  }`
+                  `
+                    flex
+                    items-center
+                    gap-3
+                    rounded-xl
+                    px-4
+                    py-3
+                    transition-all
+                    duration-200
+
+                    ${
+                      isActive
+                        ? "bg-[#d9a74d] shadow-md"
+                        : "hover:bg-white/10"
+                    }
+                  `
                 }
               >
-                <Icon size={20} />
+                <Icon
+                  size={20}
+                  className="shrink-0"
+                />
+
                 <span className="font-medium">
                   {item.title}
                 </span>
               </NavLink>
             );
           })}
-        </div>
+        </nav>
       </div>
 
-      {/* Admin Profile */}
-      <div className="p-4">
+      {/* ================= ADMIN PROFILE ================= */}
+      <div className="border-t border-white/10 p-4">
         <div
           className="
-          bg-white/10
-          backdrop-blur-sm
-          rounded-2xl
-          p-4
-          flex
-          items-center
-          gap-3
-          border
-          border-white/20
-        "
+            flex
+            items-center
+            gap-3
+            rounded-2xl
+            border
+            border-white/20
+            bg-white/10
+            p-4
+            backdrop-blur-sm
+          "
         >
           <img
             src="https://i.pravatar.cc/100"
-            alt="admin"
-            className="w-12 h-12 rounded-full"
+            alt="Admin"
+            className="
+              h-11
+              w-11
+              shrink-0
+              rounded-full
+              object-cover
+            "
           />
 
-          <div>
+          <div className="min-w-0">
             <h3 className="font-semibold">
               Admin
             </h3>
 
-            <p className="text-sm text-white/80">
+            <p className="truncate text-sm text-white/80">
               admin@turbanculture.com
             </p>
           </div>

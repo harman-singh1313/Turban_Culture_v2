@@ -235,6 +235,8 @@ const Home = () => {
 
 </section>
 
+
+
         {/* SEO Hidden Content */}
 
 
@@ -319,7 +321,7 @@ const Home = () => {
         {showMedia && <SideBarVedio />}
 
         {/* Services Section - IMPROVED */}
-        <div className='bg-gradient-to-b from-white to-[#fdfaf6] p-5'>
+        <div className='bg-gradient-to-b from-white to-[#fdfaf6] p-5 jsu'>
           <Reveal>
             <div className='text-center '>
               <span className="text-[#c9913a] font-semibold tracking-widest text-xs uppercase">What We Offer</span>

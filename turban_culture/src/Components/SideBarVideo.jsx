@@ -82,75 +82,73 @@ const SideBarVideo = ({ height = "250px" }) => {
           touch-pan-x
         "
       >
-        <div className="flex w-max flex-nowrap gap-3 md:gap-4">
-          {videos.map((item) => (
-            <div
-              key={item._id}
-              onClick={() =>
-                openModal(item.videoUrl, item.posterUrl)
-              }
-              style={{ height }}
-              className="
-                relative
-                w-[130px]
-                md:w-[170px]
-                lg:w-[200px]
-                shrink-0
-                cursor-pointer
-                overflow-hidden
-                rounded-xl
-                bg-neutral-900
-              "
-            >
-              {/* Poster */}
+<div className="flex w-max mx-auto flex-nowrap gap-3 md:gap-4">
+  {videos.map((item) => (
+    <div
+      key={item._id}
+      onClick={() =>
+        openModal(item.videoUrl, item.posterUrl)
+      }
+      style={{ height }}
+      className="
+        relative
+        w-[130px]
+        md:w-[170px]
+        lg:w-[200px]
+        shrink-0
+        cursor-pointer
+        overflow-hidden
+        rounded-xl
+        bg-neutral-900
+      "
+    >
+      {/* Poster */}
+      <img
+        src={item.posterUrl}
+        alt="Video poster"
+        loading="lazy"
+        draggable="false"
+        className="
+          h-full
+          w-full
+          object-cover
+          select-none
+        "
+      />
 
-              <img
-                src={item.posterUrl}
-                alt="Video poster"
-                loading="lazy"
-                draggable="false"
-                className="
-                  h-full
-                  w-full
-                  object-cover
-                  select-none
-                "
-              />
-
-              {/* Play Button */}
-
-              <div
-                className="
-                  pointer-events-none
-                  absolute
-                  inset-0
-                  flex
-                  items-center
-                  justify-center
-                "
-              >
-                <div
-                  className="
-                    flex
-                    h-11
-                    w-11
-                    items-center
-                    justify-center
-                    rounded-full
-                    bg-black/60
-                    text-lg
-                    text-white
-                    shadow-lg
-                    md:h-12
-                    md:w-12
-                  "
-                >
-                  ▶
-                </div>
-              </div>
-            </div>
-          ))}
+      {/* Play Button */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          flex
+          items-center
+          justify-center
+        "
+      >
+        <div
+          className="
+            flex
+            h-11
+            w-11
+            items-center
+            justify-center
+            rounded-full
+            bg-black/60
+            text-lg
+            text-white
+            shadow-lg
+            md:h-12
+            md:w-12
+          "
+        >
+          ▶
         </div>
+      </div>
+    </div>
+  ))}
+</div>
       </div>
 
       {/* ================= VIDEO MODAL ================= */}
