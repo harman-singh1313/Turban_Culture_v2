@@ -15,23 +15,31 @@ const ServiceCard = ({
   const [flipped, setFlipped] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  /* ---------------- Mobile Check ---------------- */
+  /* ================= MOBILE CHECK ================= */
+
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+
+    const updateMobile = () => {
+      setIsMobile(mediaQuery.matches);
     };
 
-    checkMobile();
+    updateMobile();
 
-    window.addEventListener("resize", checkMobile);
+    mediaQuery.addEventListener("change", updateMobile);
 
     return () => {
-      window.removeEventListener("resize", checkMobile);
+      mediaQuery.removeEventListener("change", updateMobile);
     };
   }, []);
 
-  /* ---------------- Scroll Animation ---------------- */
+  /* ================= SCROLL ANIMATION ================= */
+
   useEffect(() => {
+    const card = cardRef.current;
+
+    if (!card) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -43,16 +51,15 @@ const ServiceCard = ({
       }
     );
 
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
+    observer.observe(card);
 
     return () => {
       observer.disconnect();
     };
   }, []);
 
-  /* ---------------- Desktop Auto Flip ---------------- */
+  /* ================= DESKTOP AUTO FLIP ================= */
+
   useEffect(() => {
     if (!visible || isMobile) return;
 
@@ -68,23 +75,36 @@ const ServiceCard = ({
 
     return () => {
       clearTimeout(flipTimer);
-      clearTimeout(resetTimer);
+
+      if (resetTimer) {
+        clearTimeout(resetTimer);
+      }
     };
   }, [visible, isMobile, index]);
 
-  /* ---------------- Navigation ---------------- */
+  /* ================= NAVIGATION ================= */
+
   const goTo = (path) => {
     navigate(path);
   };
 
-  /* ---------------- Mobile Sticky Style ---------------- */
-const mobileStackStyle = isMobile
-  ? {
-      top: `${120 + index * 16}px`,
-      zIndex: index + 1,
-      position: "sticky",
-    }
-  : {};
+  /* =====================================================
+     MOBILE STACK
+     New card comes ABOVE previous card
+  ===================================================== */
+
+  const mobileStackStyle = isMobile
+    ? {
+        position: "sticky",
+
+        // original stacked look
+        top: `${120 + index * 16}px`,
+
+        // IMPORTANT:
+        // next card appears above previous card
+        zIndex: index + 1,
+      }
+    : {};
 
   return (
     <div
@@ -95,9 +115,6 @@ const mobileStackStyle = isMobile
         h-[420px]
         md:h-80
 
-        transition-all
-        duration-700
-
         ${
           isMobile
             ? `
@@ -105,6 +122,9 @@ const mobileStackStyle = isMobile
             `
             : `
               [perspective:1000px]
+              transition-all
+              duration-700
+
               ${
                 visible
                   ? "translate-y-0 opacity-100"
@@ -115,6 +135,7 @@ const mobileStackStyle = isMobile
       `}
     >
       {/* ================= CARD WRAPPER ================= */}
+
       <div
         className={`
           relative
@@ -151,7 +172,10 @@ const mobileStackStyle = isMobile
           }
         }}
       >
-        {/* ================= FRONT SIDE ================= */}
+        {/* =====================================================
+            FRONT
+        ===================================================== */}
+
         <div
           className={`
             absolute
@@ -166,14 +190,24 @@ const mobileStackStyle = isMobile
             ${!isMobile ? "[backface-visibility:hidden]" : ""}
           `}
         >
-          {/* Image */}
+          {/* IMAGE */}
+
           <img
             src={image}
             alt={title}
-            className="block h-full w-full object-cover"
+            draggable="false"
+            className="
+              pointer-events-none
+              block
+              h-full
+              w-full
+              select-none
+              object-cover
+            "
           />
 
-          {/* Dark Overlay */}
+          {/* DARK OVERLAY */}
+
           <div
             className="
               pointer-events-none
@@ -186,9 +220,11 @@ const mobileStackStyle = isMobile
             "
           />
 
-          {/* Content */}
+          {/* ================= CONTENT ================= */}
+
           <div
             className="
+              pointer-events-none
               absolute
               bottom-0
               left-0
@@ -197,12 +233,21 @@ const mobileStackStyle = isMobile
               p-5
             "
           >
-            {/* Small Heading */}
-            <p className="text-[10px] uppercase tracking-[0.22em] text-[#f4c46c]">
+            {/* SMALL TITLE */}
+
+            <p
+              className="
+                text-[10px]
+                uppercase
+                tracking-[0.22em]
+                text-[#f4c46c]
+              "
+            >
               Turban Service
             </p>
 
-            {/* Title */}
+            {/* TITLE */}
+
             <h2
               className="
                 mt-1
@@ -216,7 +261,8 @@ const mobileStackStyle = isMobile
               {title}
             </h2>
 
-            {/* Features */}
+            {/* FEATURES */}
+
             <div className="mt-2 space-y-1">
               {(isMobile
                 ? features.slice(0, 2)
@@ -224,72 +270,94 @@ const mobileStackStyle = isMobile
               ).map((feature, featureIndex) => (
                 <p
                   key={featureIndex}
-                  className="text-[11px] text-white/80"
+                  className="
+                    text-[11px]
+                    text-white/80
+                  "
                 >
                   ✓ {feature}
                 </p>
               ))}
             </div>
 
-            {/* ================= MOBILE BUTTONS ================= */}
+            {/* =================================================
+                MOBILE BUTTONS
+            ================================================= */}
+
             {isMobile && (
               <div
                 className="
+                  pointer-events-auto
                   relative
-                  z-[999]
+                  z-50
                   mt-4
                   flex
-                  gap-2
-                  pointer-events-auto
+                  gap-3
                 "
               >
-                {/* Get Quote */}
+                {/* GET QUOTE */}
+
                 <button
                   type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
+
                     goTo("/booking");
                   }}
                   className="
-                    relative
-                    z-[1000]
+                    flex
+                    min-h-[48px]
                     flex-1
-                    cursor-pointer
+                    touch-manipulation
+                    select-none
+                    items-center
+                    justify-center
                     rounded-full
                     bg-[#c9913a]
-                    py-2.5
-                    text-[11px]
+                    px-4
+                    text-[12px]
                     font-bold
                     text-black
-                    transition
-                    duration-200
-                    active:scale-95
+
+                    transition-transform
+                    duration-150
+
+                    active:scale-[0.97]
                   "
                 >
                   Get Quote
                 </button>
 
-                {/* Gallery */}
+                {/* GALLERY */}
+
                 <button
                   type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
+
                     goTo("/gallery");
                   }}
                   className="
-                    relative
-                    z-[1000]
+                    flex
+                    min-h-[48px]
                     flex-1
-                    cursor-pointer
+                    touch-manipulation
+                    select-none
+                    items-center
+                    justify-center
                     rounded-full
                     bg-white
-                    py-2.5
-                    text-[11px]
+                    px-4
+                    text-[12px]
                     font-bold
                     text-black
-                    transition
-                    duration-200
-                    active:scale-95
+
+                    transition-transform
+                    duration-150
+
+                    active:scale-[0.97]
                   "
                 >
                   Gallery
@@ -299,112 +367,149 @@ const mobileStackStyle = isMobile
           </div>
         </div>
 
-        {/* ================= BACK SIDE - DESKTOP ONLY ================= */}
-        {!isMobile && (
-          <div
-            className="
-              absolute
-              inset-0
-              flex
-              flex-col
-              justify-between
-              rounded-[20px]
-              border
-              border-[#d8ad62]/50
-              bg-[#fff8ef]
-              px-5
-              py-5
-              shadow-xl
-              [backface-visibility:hidden]
-              [transform:rotateY(180deg)]
-            "
+        {/* =====================================================
+            BACK - DESKTOP ONLY
+        ===================================================== */}
+
+{/* ================= BACK SIDE - DESKTOP ONLY ================= */}
+{!isMobile && (
+  <div
+    className="
+      absolute
+      inset-0
+      flex
+      flex-col
+      rounded-[20px]
+      border
+      border-[#d8ad62]/50
+      bg-[#fff8ef]
+      p-5
+      shadow-xl
+      [backface-visibility:hidden]
+      [transform:rotateY(180deg)]
+    "
+  >
+    {/* ================= SERVICE DETAILS ================= */}
+    <div className="min-h-0 flex-1">
+      <p
+        className="
+          mb-2
+          text-[9px]
+          uppercase
+          tracking-[0.22em]
+          text-[#c9913a]
+        "
+      >
+        Service Details
+      </p>
+
+      <h3
+        className="
+          mb-3
+          font-serif
+          text-[18px]
+          font-semibold
+          leading-[1.25]
+          text-[#2f2418]
+        "
+      >
+        {title}
+      </h3>
+
+      <ul
+        className="
+          space-y-1.5
+          text-[12px]
+          leading-[1.35]
+          text-[#6b5b4b]
+        "
+      >
+        {features.slice(0, 4).map((feature, featureIndex) => (
+          <li
+            key={featureIndex}
+            className="flex items-start gap-1.5"
           >
-            {/* Service Details */}
-            <div>
-              <p
-                className="
-                  mb-2
-                  text-[10px]
-                  uppercase
-                  tracking-[0.22em]
-                  text-[#c9913a]
-                "
-              >
-                Service Details
-              </p>
+            <span className="shrink-0 text-[#9a681d]">✓</span>
 
-              <h3
-                className="
-                  mb-4
-                  font-serif
-                  text-xl
-                  font-semibold
-                  text-[#2f2418]
-                "
-              >
-                {title}
-              </h3>
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
 
-              <ul
-                className="
-                  space-y-2
-                  text-sm
-                  text-[#6b5b4b]
-                "
-              >
-                {features.map((feature, featureIndex) => (
-                  <li key={featureIndex}>
-                    ✓ {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
+    {/* ================= DESKTOP BUTTONS ================= */}
+    <div
+      className="
+        mt-3
+        grid
+        shrink-0
+        grid-cols-2
+        gap-2
+      "
+    >
+      {/* GET QUOTE */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goTo("/booking");
+        }}
+        className="
+          flex
+          min-h-[40px]
+          items-center
+          justify-center
+          rounded-full
+          bg-[#c9913a]
+          px-3
+          text-center
+          text-[11px]
+          font-semibold
+          leading-tight
+          text-white
+          transition
+          duration-200
+          hover:bg-[#b67f2e]
+        "
+      >
+        Get Quote
+      </button>
 
-            {/* Desktop Buttons */}
-            <div className="flex gap-2 pt-4">
-              {/* Get Quote */}
-              <button
-                type="button"
-                onClick={() => goTo("/booking")}
-                className="
-                  rounded-full
-                  bg-[#c9913a]
-                  px-4
-                  py-2
-                  text-xs
-                  font-semibold
-                  text-white
-                  transition
-                  hover:scale-105
-                "
-              >
-                Get Quote
-              </button>
-
-              {/* Gallery */}
-              <button
-                type="button"
-                onClick={() => goTo("/gallery")}
-                className="
-                  rounded-full
-                  border
-                  border-[#c9913a]
-                  px-4
-                  py-2
-                  text-xs
-                  font-semibold
-                  text-[#9a681d]
-                  transition
-                  hover:bg-[#c9913a]
-                  hover:text-white
-                "
-              >
-                View Gallery
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* VIEW GALLERY */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goTo("/gallery");
+        }}
+        className="
+          flex
+          min-h-[40px]
+          items-center
+          justify-center
+          rounded-full
+          border
+          border-[#c9913a]
+          bg-transparent
+          px-3
+          text-center
+          text-[11px]
+          font-semibold
+          leading-tight
+          text-[#9a681d]
+          transition
+          duration-200
+          hover:bg-[#c9913a]
+          hover:text-white
+        "
+      >
+        View Gallery
+      </button>
+    </div>
+  </div>
+)}      </div>
     </div>
   );
 };

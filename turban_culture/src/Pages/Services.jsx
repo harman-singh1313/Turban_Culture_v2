@@ -11,7 +11,7 @@ import jodpuri from '../assets/jodpuri.jpg'
 import jodpuri_safa from '../assets/jodpuri_safa.jpg'
 import jodpuri2 from '../assets/jodpuri2.jpg'
 import PackagesCard from '../Components/PackagesCard'
-import service3 from '../assets/service3.png'
+import harman from '../assets/harman.png'
 import family_turban2 from '../assets/family_turban2.jpg'
 
 import ServiceHighlights from '../Components/SeerviceHighlights'
@@ -53,7 +53,7 @@ const Services = () => {
     <div className='bg-[#fdfaf6]'>
 
       <Main
-        image={service3}
+        image={harman}
         text="turban culture"
         head1="Every Groom "
         head2="Deserves "

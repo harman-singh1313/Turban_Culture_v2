@@ -10,15 +10,36 @@ import {
 
 const router = express.Router();
 
+/* ================= GET VIDEOS ================= */
+
 router.get("/", getVideos);
+
+/* ================= UPLOAD VIDEO + POSTER ================= */
 
 router.post(
   "/",
   authMiddleware,
-  uploadVideo.single("video"),
+
+  uploadVideo.fields([
+    {
+      name: "video",
+      maxCount: 1,
+    },
+    {
+      name: "poster",
+      maxCount: 1,
+    },
+  ]),
+
   uploadVideoFile
 );
 
-router.delete("/:id", authMiddleware, deleteVideo);
+/* ================= DELETE VIDEO ================= */
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  deleteVideo
+);
 
 export default router;

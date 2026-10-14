@@ -1,228 +1,241 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
-import "./SideBarVideo.css";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/videos`;
 
-const optimizeCloudinaryVideo = (url, width = 400, height = 500) => {
-  if (!url || !url.includes("res.cloudinary.com") || !url.includes("/upload/")) {
-    return url;
-  }
-
-  const transform = `f_auto,q_auto,w_${width},h_${height},c_limit`;
-
-  return url.replace("/upload/", `/upload/${transform}/`);
-};
-
-const SideBarVideo = ({ height = "250px", speed = "12s" }) => {
+const SideBarVideo = ({ height = "250px" }) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [isPaused, setIsPaused] = useState(false);
-  const [modalLoading, setModalLoading] = useState(false);
 
-  const videoRefs = useRef([]);
-
-  const pause = () => setIsPaused(true);
-  const resume = () => setIsPaused(false);
-
-  // Lock background scroll
+  // Lock background scroll when modal open
   useEffect(() => {
     if (selectedVideo) {
       document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
-      setIsPaused(true);
     } else {
       document.body.style.overflow = "auto";
-      document.body.style.touchAction = "auto";
-      setIsPaused(false);
     }
 
     return () => {
       document.body.style.overflow = "auto";
-      document.body.style.touchAction = "auto";
     };
   }, [selectedVideo]);
 
-  // Pause sidebar videos when modal open
+  // Fetch Videos
   useEffect(() => {
-    videoRefs.current.forEach((video) => {
-      if (!video) return;
-
-      if (selectedVideo) {
-        video.pause();
-      } else {
-        video.play().catch(() => {});
-      }
-    });
-  }, [selectedVideo]);
-
-  // Fetch videos
-  useEffect(() => {
-    let timer;
-
     const fetchVideos = async () => {
       try {
-        const fastRes = await axios.get(`${API_URL}?limit=5`);
-
-        setVideos(fastRes.data.videos || []);
-        setLoading(false);
-
-        timer = setTimeout(async () => {
-          try {
-            const fullRes = await axios.get(API_URL);
-            setVideos(fullRes.data.videos || []);
-          } catch (err) {
-            console.log("Full video load error:", err);
-          }
-        }, 2000);
+        const res = await axios.get(API_URL);
+        setVideos(res.data.videos || []);
       } catch (err) {
-        console.log(err);
+        console.log("Video load error:", err);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchVideos();
-
-    return () => clearTimeout(timer);
   }, []);
 
-  // Auto play videos
-  useEffect(() => {
-    if (!videos.length) return;
-
-    videoRefs.current.forEach((video) => {
-      if (video) {
-        video.muted = true;
-        video.loop = true;
-        video.playsInline = true;
-      }
+  // Open Modal
+  const openModal = (videoUrl, posterUrl) => {
+    setSelectedVideo({
+      videoUrl,
+      posterUrl,
     });
-
-    const playBatch = (start, end) => {
-      videoRefs.current
-        .slice(start, end)
-        .filter(Boolean)
-        .forEach((video) => {
-          video.play().catch(() => {});
-        });
-    };
-
-    playBatch(0, 3);
-
-    const timer1 = setTimeout(() => playBatch(3, 6), 2000);
-    const timer2 = setTimeout(() => playBatch(6, 9), 4000);
-
-    const timer3 = setTimeout(() => {
-      if (videoRefs.current.length > 9) {
-        playBatch(9, videoRefs.current.length);
-      }
-    }, 6000);
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-    };
-  }, [videos]);
-
-  const openModal = (src) => {
-    setSelectedVideo(src);
-    setModalLoading(true);
   };
 
+  // Close Modal
   const closeModal = () => {
     setSelectedVideo(null);
-    setModalLoading(false);
   };
 
   if (loading) {
-    return <div className="p-4 text-sm text-gray-500">Loading videos...</div>;
+    return (
+      <div className="p-4 text-sm text-gray-500">
+        Loading videos...
+      </div>
+    );
   }
 
   if (!videos.length) {
-    return <div className="p-4 text-sm text-gray-500">No videos available</div>;
+    return (
+      <div className="p-4 text-sm text-gray-500">
+        No videos available
+      </div>
+    );
   }
 
-  const displayVideos = [...videos, ...videos];
-
   return (
-    <div className="video-wrapper" style={{ height }}>
+    <>
+      {/* ================= VIDEO SCROLLER ================= */}
+
       <div
-        className={`video-track ${isPaused || selectedVideo ? "paused" : ""}`}
-        style={{ animationDuration: speed }}
-        onTouchStart={pause}
-        onTouchEnd={resume}
-        onMouseDown={pause}
-        onMouseUp={resume}
-        onMouseLeave={resume}
+        className="
+          w-full
+          overflow-x-auto
+          overflow-y-hidden
+          px-3
+          pb-3
+          scroll-smooth
+          touch-pan-x
+        "
       >
-        {displayVideos.map((item, i) => {
-          const originalSrc = item.videoUrl;
-          const thumbSrc = optimizeCloudinaryVideo(item.videoUrl, 180, 240);
-
-          return (
+        <div className="flex w-max flex-nowrap gap-3 md:gap-4">
+          {videos.map((item) => (
             <div
-              key={i}
-              className="video-card-wrapper"
+              key={item._id}
+              onClick={() =>
+                openModal(item.videoUrl, item.posterUrl)
+              }
               style={{ height }}
-              onClick={() => openModal(originalSrc)}
+              className="
+                relative
+                w-[130px]
+                md:w-[170px]
+                lg:w-[200px]
+                shrink-0
+                cursor-pointer
+                overflow-hidden
+                rounded-xl
+                bg-neutral-900
+              "
             >
-              <div className="video-loader">
-                <div className="video-spinner" />
-              </div>
+              {/* Poster */}
 
-              <div className="video-card">
-                <video
-                  ref={(el) => (videoRefs.current[i] = el)}
-                  src={thumbSrc}
-                  muted
-                  loop
-                  playsInline
-                  preload={i < 3 ? "metadata" : "none"}
-                  className="video-el"
-                  onLoadedData={(e) => {
-                    e.target.classList.add("loaded");
-                    e.target.parentElement.previousSibling?.classList.add("hidden");
-                  }}
-                />
+              <img
+                src={item.posterUrl}
+                alt="Video poster"
+                loading="lazy"
+                draggable="false"
+                className="
+                  h-full
+                  w-full
+                  object-cover
+                  select-none
+                "
+              />
+
+              {/* Play Button */}
+
+              <div
+                className="
+                  pointer-events-none
+                  absolute
+                  inset-0
+                  flex
+                  items-center
+                  justify-center
+                "
+              >
+                <div
+                  className="
+                    flex
+                    h-11
+                    w-11
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-black/60
+                    text-lg
+                    text-white
+                    shadow-lg
+                    md:h-12
+                    md:w-12
+                  "
+                >
+                  ▶
+                </div>
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
+
+      {/* ================= VIDEO MODAL ================= */}
 
       {selectedVideo &&
         createPortal(
-          <div onClick={closeModal} className="video-modal-overlay">
-            <div className="video-modal-inner" onClick={(e) => e.stopPropagation()}>
-              <button onClick={closeModal} className="close-btn">
+          <div
+            onClick={closeModal}
+            className="
+              fixed
+              inset-0
+              z-[99999]
+              flex
+              items-center
+              justify-center
+              bg-black/95
+              p-3
+              md:p-6
+            "
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="
+                relative
+                flex
+                h-full
+                w-full
+                items-center
+                justify-center
+              "
+            >
+              {/* Close Button */}
+
+              <button
+                type="button"
+                onClick={closeModal}
+                className="
+                  absolute
+                  right-2
+                  top-2
+                  z-20
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-white
+                  text-xl
+                  font-bold
+                  text-black
+                  shadow-lg
+                  md:right-5
+                  md:top-5
+                "
+              >
                 ✕
               </button>
 
-              {modalLoading && (
-                <div className="modal-spinner-wrapper">
-                  <div className="video-spinner" />
-                </div>
-              )}
+              {/* Video */}
 
               <video
-                key={selectedVideo}
-                src={selectedVideo}
+                src={selectedVideo.videoUrl}
+                poster={selectedVideo.posterUrl || ""}
                 controls
                 controlsList="nodownload"
                 disablePictureInPicture
-                autoPlay
                 playsInline
-                onLoadedData={() => setModalLoading(false)}
-                className={`modal-video-el ${modalLoading ? "opacity-0" : "opacity-100"}`}
+                preload="metadata"
+                className="
+                  max-h-[75dvh]
+                  max-w-[90vw]
+                  rounded-2xl
+                  object-contain
+                  shadow-2xl
+                  sm:max-w-[400px]
+                  md:max-h-[80vh]
+                  lg:max-w-[450px]
+                "
               />
             </div>
           </div>,
           document.body
         )}
-    </div>
+    </>
   );
 };
 

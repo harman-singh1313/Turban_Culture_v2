@@ -6,6 +6,7 @@ const API_URL = `${import.meta.env.VITE_API_URL}/api/videos`;
 
 const VideoManager = () => {
   const [video, setVideo] = useState(null);
+  const [poster, setPoster] = useState(null);
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -32,8 +33,15 @@ const VideoManager = () => {
       return;
     }
 
+    if (!poster) {
+      alert("Please select a poster.");
+      return;
+    }
+
     const formData = new FormData();
+
     formData.append("video", video);
+    formData.append("poster", poster);
 
     try {
       setLoading(true);
@@ -48,6 +56,7 @@ const VideoManager = () => {
       alert("Video uploaded successfully");
 
       setVideo(null);
+      setPoster(null);
 
       fetchVideos();
     } catch (err) {
@@ -98,6 +107,18 @@ const VideoManager = () => {
           className="mb-4"
         />
 
+        {/* Poster */}
+        <label className="font-semibold block mb-3">
+          Select Poster
+        </label>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setPoster(e.target.files[0])}
+          className="mb-4"
+        />
+
         <button
           onClick={handleUpload}
           disabled={loading}
@@ -123,6 +144,7 @@ const VideoManager = () => {
 
             <video
               src={item.videoUrl}
+              poster={item.posterUrl}
               controls
               className="w-full h-64 object-cover"
             />

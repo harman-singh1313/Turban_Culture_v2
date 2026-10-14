@@ -14,6 +14,7 @@ import SidebarScroll from '../Components/SidebarScroll'
 import LeadsForm from '../Components/LeadsForm'
 import SideBarVedio from '../Components/SideBarVideo'
 import GoogleReviews from '../Components/GoogleReviews'
+import TurbanColorMatcher from '../Components/TurbanColorMatcher'
 
 const API_URL = import.meta.env.VITE_API_URL || "http://3.27.155.171:5000";
 
@@ -140,6 +141,100 @@ const Home = () => {
           button="Book Your Royal Look"
         />
 
+
+<section className="relative py-10 sm:py-14 px-4 overflow-hidden">
+
+  <div className="max-w-6xl mx-auto">
+
+    {/* Small Badge */}
+    <div className="flex justify-center mb-3">
+      <span className="
+        inline-flex items-center gap-2
+        px-4 py-2 rounded-full
+        bg-[#fdf6ec]
+        border border-[#e8d5b5]
+        text-[#c9913a]
+        text-xs sm:text-sm
+        font-bold tracking-wider uppercase
+      ">
+        ✨ Instant Color Match
+      </span>
+    </div>
+
+    {/* Heading */}
+    <div className="text-center mb-7">
+
+      <h2 className="
+        font-serif
+        text-3xl sm:text-4xl lg:text-5xl
+        font-bold text-[#1a1a1a]
+        leading-tight
+      ">
+        Find Your Perfect
+        <span className="text-[#c9913a]"> Turban Color</span>
+      </h2>
+
+      <p className="
+        mt-3
+        text-sm sm:text-base
+        text-[#a08060]
+        max-w-xl mx-auto
+        leading-relaxed
+      ">
+        Upload your outfit photo and discover turban colors
+        that perfectly complement your look.
+      </p>
+
+    </div>
+
+    {/* Existing Matcher */}
+    <div className="relative">
+
+      {/* Live Status */}
+      <div className="absolute -top-3 right-3 sm:right-6 z-20">
+
+        <div className="
+          flex items-center gap-2
+          bg-white
+          border border-[#e8d5b5]
+          shadow-md
+          rounded-full
+          px-3 py-1.5
+          text-[10px] sm:text-xs
+          font-bold text-[#1a1a1a]
+        ">
+
+          <span className="relative flex w-2 h-2">
+
+            <span className="
+              absolute inline-flex
+              w-full h-full rounded-full
+              bg-[#c9913a]
+              opacity-60 animate-ping
+            " />
+
+            <span className="
+              relative inline-flex
+              w-2 h-2 rounded-full
+              bg-[#3ac959]
+            " />
+
+          </span>
+
+          LIVE MATCHER
+
+        </div>
+
+      </div>
+
+      <TurbanColorMatcher />
+
+    </div>
+
+  </div>
+
+</section>
+
         {/* SEO Hidden Content */}
 
 
@@ -217,6 +312,9 @@ const Home = () => {
             </Reveal>
           </div>
         </div>
+
+
+
 
         {showMedia && <SideBarVedio />}
 
