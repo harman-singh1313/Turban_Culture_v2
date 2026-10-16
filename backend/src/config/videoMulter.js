@@ -10,12 +10,16 @@ const storage = new CloudinaryStorage({
   cloudinary,
 
   params: async (req, file) => {
-    /* ================= VIDEO ================= */
+    /* =====================================================
+       VIDEO
+    ===================================================== */
 
     if (file.fieldname === "video") {
       return {
         folder: "turban-culture-videos",
+
         resource_type: "video",
+
         allowed_formats: [
           "mp4",
           "mov",
@@ -23,23 +27,52 @@ const storage = new CloudinaryStorage({
           "mkv",
           "webm",
         ],
+
+        // Optimize / compress uploaded video
+        transformation: [
+          {
+            width: 1920,
+            height: 1080,
+            crop: "limit",
+            quality: "auto",
+          },
+        ],
       };
     }
 
-    /* ================= POSTER ================= */
+    /* =====================================================
+       VIDEO POSTER
+    ===================================================== */
 
     if (file.fieldname === "poster") {
       return {
         folder: "turban-culture-video-posters",
+
         resource_type: "image",
+
         allowed_formats: [
           "jpg",
           "jpeg",
           "png",
           "webp",
         ],
+
+        // Optimize / compress poster image
+        transformation: [
+          {
+            width: 1920,
+            height: 1080,
+            crop: "limit",
+            quality: "auto:good",
+            fetch_format: "auto",
+          },
+        ],
       };
     }
+
+    /* =====================================================
+       INVALID FIELD
+    ===================================================== */
 
     throw new Error("Invalid upload field");
   },
@@ -50,7 +83,9 @@ const storage = new CloudinaryStorage({
 ========================================================= */
 
 const fileFilter = (req, file, cb) => {
-  /* ================= VIDEO ================= */
+  /* =====================================================
+     VIDEO VALIDATION
+  ===================================================== */
 
   if (file.fieldname === "video") {
     if (!file.mimetype.startsWith("video/")) {
@@ -63,7 +98,9 @@ const fileFilter = (req, file, cb) => {
     return cb(null, true);
   }
 
-  /* ================= POSTER ================= */
+  /* =====================================================
+     POSTER VALIDATION
+  ===================================================== */
 
   if (file.fieldname === "poster") {
     if (!file.mimetype.startsWith("image/")) {
@@ -76,11 +113,18 @@ const fileFilter = (req, file, cb) => {
     return cb(null, true);
   }
 
-  return cb(new Error("Invalid upload field"), false);
+  /* =====================================================
+     INVALID FIELD
+  ===================================================== */
+
+  return cb(
+    new Error("Invalid upload field"),
+    false
+  );
 };
 
 /* =========================================================
-   MULTER
+   MULTER UPLOAD
 ========================================================= */
 
 export const uploadVideo = multer({
@@ -89,7 +133,7 @@ export const uploadVideo = multer({
   fileFilter,
 
   limits: {
-    // Maximum allowed file size per uploaded file
+    // Maximum file size allowed per uploaded file = 200MB
     fileSize: 200 * 1024 * 1024,
   },
 });

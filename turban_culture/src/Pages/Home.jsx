@@ -15,6 +15,7 @@ import LeadsForm from '../Components/LeadsForm'
 import SideBarVedio from '../Components/SideBarVideo'
 import GoogleReviews from '../Components/GoogleReviews'
 import TurbanColorMatcher from '../Components/TurbanColorMatcher'
+import MediaShowcase from '../Components/MediaShowcase'
 
 const API_URL = import.meta.env.VITE_API_URL || "http://3.27.155.171:5000";
 
@@ -316,9 +317,9 @@ const Home = () => {
         </div>
 
 
+<MediaShowcase/>
 
-
-        {showMedia && <SideBarVedio />}
+        {/* {showMedia && <SideBarVedio />} */}
 
         {/* Services Section - IMPROVED */}
         <div className='bg-gradient-to-b from-white to-[#fdfaf6] p-5 jsu'>
@@ -346,7 +347,7 @@ const Home = () => {
        
 
         {/* Agla section - mt-0 rakho */}
-        <div className="mt-2">
+        {/* <div className="mt-2">
         </div>
         <div className='text-center pb-8 md:py-16 px-4'>
           <p className='text-[#a08060] tracking-[4px] uppercase text-sm mb-2'>
@@ -366,7 +367,7 @@ const Home = () => {
             speed="30s"
             direction="right"
           />
-        )}
+        )} */}
 
         <section className="relative py-10 md:py-14 overflow-hidden bg-gradient-to-b from-orange-50 via-white to-gray-50">
           <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">

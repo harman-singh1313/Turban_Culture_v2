@@ -25,8 +25,8 @@ const menuItems = [
     icon: Shirt,
   },
   {
-    title: "Gallery Manager",
-    path: "/admin/galleryManager",
+    title: "Media Manager",
+    path: "/admin/MediaManager",
     icon: ShoppingBag,
   },
   {
@@ -56,8 +56,8 @@ const Sidebar = ({ onNavigate }) => {
         flex-col
         justify-between
         bg-gradient-to-b
-        from-[#c9913a]
-        to-[#b18236]
+        from-[#a0752f]
+        to-[#66420a]
         text-white
         shadow-xl
       "
@@ -121,7 +121,7 @@ const Sidebar = ({ onNavigate }) => {
       </div>
 
       {/* ================= ADMIN PROFILE ================= */}
-      <div className="border-t border-white/10 p-4">
+      {/* <div className="border-t border-white/10 p-4">
         <div
           className="
             flex
@@ -157,7 +157,7 @@ const Sidebar = ({ onNavigate }) => {
             </p>
           </div>
         </div>
-      </div>
+      </div> */}
     </aside>
   );
 };

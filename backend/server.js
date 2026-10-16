@@ -19,6 +19,8 @@ import leadRoutes from './src/routes/leadRoutes.js'
 import passwordResetRoutes from "./src/routes/passwordResetRoutes.js";
 import sliderRoutes from "./src/routes/sliderRoutes.js"
 import videoRoutes from "./src/routes/videoRoutes.js";
+
+import mediaRoutes from "./src/routes/mediarouter.js";
 dotenv.config();
 
 // MongoDB Connect
@@ -53,6 +55,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api",sliderRoutes)
 app.use("/api/password-reset", passwordResetRoutes);
 app.use("/api/videos", videoRoutes);
+
+app.use("/api/media", mediaRoutes);
 // ================= HOME =================
 app.get("/", (req, res) => {
   res.send("Backend Running");
