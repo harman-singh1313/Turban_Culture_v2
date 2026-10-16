@@ -25,6 +25,7 @@ const categories = [
 const getCategoryLabel = (value) =>
   categories.find((item) => item.value === value)?.label || value;
 
+// Title optional hai, khaali ho to category ka naam dikhao
 const getTitle = (item) =>
   item.category === "videos" && item.title
     ? item.title
@@ -44,7 +45,10 @@ const MediaShowcase = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [playingId, setPlayingId] = useState(null);
 
-  // FETCH - existing logic unchanged
+  // =========================================================
+  // FETCH
+  // =========================================================
+
   useEffect(() => {
     let active = true;
 
@@ -70,7 +74,7 @@ const MediaShowcase = () => {
         if (active) {
           setError(
             err.response?.data?.message ||
-              "Failed to load gallery."
+            "Failed to load gallery."
           );
         }
       } finally {
@@ -85,7 +89,11 @@ const MediaShowcase = () => {
     };
   }, []);
 
-  // DERIVED DATA - existing logic unchanged
+  // =========================================================
+  // DERIVED DATA
+  // =========================================================
+
+  // Sirf wahi categories pills mein dikhengi jinme data hai
   const availableCategories = useMemo(
     () =>
       categories.filter((cat) =>
@@ -110,7 +118,10 @@ const MediaShowcase = () => {
   const isVideo = selected?.category === "videos";
   const isPlaying = !!selected && playingId === selected._id;
 
-  // HANDLERS - existing logic unchanged
+  // =========================================================
+  // HANDLERS
+  // =========================================================
+
   const handleSelect = (item) => {
     setSelectedId(item._id);
     setPlayingId(
@@ -126,56 +137,50 @@ const MediaShowcase = () => {
     setPlayingId(null);
   };
 
+  // =========================================================
+  // UI
+  // =========================================================
+
   return (
-    <section className="relative isolate w-full overflow-hidden bg-gradient-to-br from-[#fbf8f1] via-[#eeebe5] to-[#f8f2e8] py-10 sm:py-14 lg:py-20">
+    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#fffdf8] via-[#ededec] to-[#f9f5f1] py-10 sm:py-14 lg:py-20">
 
-      {/* GLASS BACKGROUND DECORATIONS */}
-      <div className="pointer-events-none absolute -top-28 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[#d4a853]/25 blur-[100px] sm:h-[450px] sm:w-[450px]" />
-
-      <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-white/80 blur-[100px]" />
-
-      <div className="pointer-events-none absolute right-0 top-1/3 h-72 w-72 rounded-full bg-[#d4a853]/10 blur-[100px]" />
+      {/* Soft background glow */}
+      <div className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -transtone-x-1/2 rounded-full bg-[#d4a853]/25 blur-3xl sm:h-96 sm:w-96" />
 
       <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
 
         {/* HEADING */}
-        <div className="mx-auto mb-7 max-w-2xl text-center sm:mb-10">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/50 px-4 py-2 shadow-sm backdrop-blur-xl">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#b8863b]" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#a8752b] sm:text-xs">
-              Our Work
-            </p>
-          </div>
 
-          <h2 className="font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl lg:text-5xl">
-            Our{" "}
-            <span className="bg-gradient-to-r from-[#c99a4b] via-[#a8752b] to-[#d6b16d] bg-clip-text text-transparent">
-              Gallery
-            </span>
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-stone-600 sm:text-base">
-            Explore our latest work, tap any project to view it
+        <div className="mx-auto mb-6 max-w-2xl text-center sm:mb-10">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-[#b8863b] sm:text-xs">
+            Our Work
           </p>
 
-          <div className="mx-auto mt-5 h-px w-20 bg-gradient-to-r from-transparent via-[#c99a4b] to-transparent" />
+          <h2 className="font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl lg:text-5xl">
+            Our <span className="text-[#b8863b]">Gallery</span>
+          </h2>
+
+          <p className="mt-3 text-sm text-stone-500 sm:text-base">
+            Explore our latest work, tap any project to view it
+          </p>
         </div>
 
         {/* LOADING */}
+
         {loading && (
           <div className="grid gap-4 lg:grid-cols-[380px_1fr] lg:gap-6">
-            <div className="order-2 space-y-3 rounded-2xl border border-white/70 bg-white/35 p-3 shadow-lg backdrop-blur-xl lg:order-1">
+            <div className="order-2 space-y-3 lg:order-1">
               {[0, 1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-[92px] animate-pulse rounded-xl border border-white/70 bg-white/50"
+                  className="h-[92px] animate-pulse rounded-xl bg-white ring-1 ring-stone-200"
                 />
               ))}
             </div>
 
-            <div className="order-1 flex aspect-[4/5] animate-pulse items-center justify-center rounded-2xl border border-white/80 bg-white/40 shadow-xl backdrop-blur-xl sm:aspect-video lg:order-2">
+            <div className="order-1 flex aspect-[4/5] sm:aspect-video animate-pulse items-center justify-center rounded-2xl bg-stone-200 lg:order-2">
               <Loader2
-                size={30}
+                size={28}
                 className="animate-spin text-[#b8863b]"
               />
             </div>
@@ -183,11 +188,13 @@ const MediaShowcase = () => {
         )}
 
         {/* ERROR */}
+
         {!loading && error && (
-          <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-red-200/80 bg-white/50 px-4 text-center shadow-xl backdrop-blur-2xl">
-            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-red-100 bg-red-50/80">
-              <AlertCircle size={28} className="text-red-500" />
-            </div>
+          <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-4 text-center">
+            <AlertCircle
+              size={28}
+              className="mb-2 text-red-500"
+            />
 
             <p className="text-sm font-semibold text-red-700">
               {error}
@@ -196,27 +203,31 @@ const MediaShowcase = () => {
         )}
 
         {/* EMPTY */}
-        {!loading && !error && media.length === 0 && (
-          <div className="flex min-h-[240px] flex-col items-center justify-center rounded-2xl border border-white/80 bg-white/40 px-4 text-center shadow-xl shadow-stone-900/5 backdrop-blur-2xl">
-            <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-white/60 shadow-sm">
-              <ImageIcon size={30} className="text-[#c4a36b]" />
-            </div>
 
-            <p className="text-base font-bold text-stone-800">
+        {!loading && !error && media.length === 0 && (
+          <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 text-center">
+            <ImageIcon
+              size={30}
+              className="mb-2 text-stone-300"
+            />
+
+            <p className="text-sm font-bold text-stone-700">
               Nothing to show yet
             </p>
 
-            <p className="mt-1 text-sm text-stone-500">
+            <p className="mt-1 text-xs text-stone-400">
               New work will appear here soon
             </p>
           </div>
         )}
 
         {/* CONTENT */}
+
         {!loading && !error && media.length > 0 && (
           <>
             {/* FILTER PILLS */}
-            <div className="-mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-3 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+
+            <div className="-mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
               {[
                 { value: "all", label: "All" },
                 ...availableCategories,
@@ -228,11 +239,10 @@ const MediaShowcase = () => {
                     key={cat.value}
                     type="button"
                     onClick={() => handleFilter(cat.value)}
-                    className={`relative h-10 shrink-0 whitespace-nowrap rounded-full border px-5 text-sm font-semibold backdrop-blur-xl transition-all duration-300 ${
-                      active
-                        ? "border-[#b8863b]/70 bg-gradient-to-r from-[#c99a4b] to-[#a8741f] text-white shadow-lg shadow-[#b8863b]/25"
-                        : "border-white/80 bg-white/45 text-stone-700 shadow-sm hover:border-[#d4a853]/70 hover:bg-white/80 hover:shadow-md"
-                    }`}
+                    className={`h-10 shrink-0 whitespace-nowrap rounded-full px-5 text-sm font-semibold transition ${active
+                        ? "bg-gradient-to-r from-[#c99a4b] to-[#a8741f] text-white shadow-lg shadow-[#b8863b]/30"
+                        : "bg-white text-stone-600 ring-1 ring-[#ecdcc0] hover:text-[#a8741f] hover:ring-[#d4a853]"
+                      }`}
                   >
                     {cat.label}
                   </button>
@@ -241,31 +251,26 @@ const MediaShowcase = () => {
             </div>
 
             {/* MAIN GRID */}
+
             <div className="grid gap-4 lg:grid-cols-[380px_1fr] lg:gap-6">
 
-              {/* PROJECT LIST */}
-              <aside className="order-2 overflow-hidden rounded-2xl border border-white/80 bg-white/40 shadow-xl shadow-stone-900/[0.06] backdrop-blur-2xl lg:relative lg:order-1">
+              {/* ================= LIST ================= */}
+
+              <aside className="order-2 overflow-hidden rounded-2xl bg-white shadow-xl shadow-[#b8863b]/10 ring-1 ring-[#ecdcc0] lg:relative lg:order-1">
+
                 <div className="flex h-full flex-col lg:absolute lg:inset-0">
 
-                  {/* SIDEBAR HEADER */}
-                  <div className="flex shrink-0 items-center justify-between border-b border-white/70 px-4 pb-3 pt-4 sm:px-5">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a8752b]">
-                        Gallery Collection
-                      </p>
+                  <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-4 sm:px-5">
+                    <p className="text-xs font-bold tracking-wide text-stone-500">
+                      Select a project
+                    </p>
 
-                      <p className="mt-1 text-sm font-semibold text-stone-800">
-                        Select a project
-                      </p>
-                    </div>
-
-                    <span className="rounded-full border border-[#d4a853]/30 bg-[#fff8e9]/80 px-3 py-1.5 text-xs font-bold text-[#9b702e]">
-                      {filtered.length} items
+                    <span className="text-xs font-semibold text-[#b8863b]">
+                      {filtered.length} available
                     </span>
                   </div>
 
-                  {/* PROJECT ITEMS */}
-                  <div className="max-h-[340px] flex-1 space-y-2 overflow-y-auto p-3 sm:max-h-[420px] sm:space-y-2.5 sm:p-4 lg:max-h-none">
+                  <div className="max-h-[340px] flex-1 space-y-2 sm:max-h-[420px] sm:space-y-2.5 overflow-y-auto px-3 pb-3 sm:px-4 sm:pb-4 lg:max-h-none">
                     {filtered.map((item) => {
                       const active = selected?._id === item._id;
                       const itemIsVideo =
@@ -277,55 +282,54 @@ const MediaShowcase = () => {
                           key={item._id}
                           type="button"
                           onClick={() => handleSelect(item)}
-                          className={`group flex w-full items-stretch overflow-hidden rounded-xl border text-left backdrop-blur-xl transition-all duration-300 ${
-                            active
-                              ? "border-[#c99a4b]/70 bg-[#fff8e9]/80 shadow-md shadow-[#b8863b]/10"
-                              : "border-white/80 bg-white/35 hover:border-[#d4a853]/70 hover:bg-white/75 hover:shadow-md"
-                          }`}
+                          className={`group flex w-full items-stretch overflow-hidden rounded-xl border text-left transition ${active
+                              ? "border-[#c99a4b] bg-[#fbf3e4] shadow-md shadow-[#b8863b]/10"
+                              : "border-[#efe3cf] bg-white hover:border-[#dcc08a] hover:shadow-md"
+                            }`}
                         >
-                          {/* THUMBNAIL */}
-                          <div className="relative h-14 w-20 shrink-0 overflow-hidden bg-stone-200/50 sm:h-[92px] sm:w-32">
+                          {/* THUMB */}
+
+                          <div className="relative h-14 w-20 shrink-0 overflow-hidden bg-stone-100 sm:h-[92px] sm:w-32">
                             {thumb ? (
                               <img
                                 src={thumb}
                                 alt={getTitle(item)}
                                 loading="lazy"
-                                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                               />
                             ) : (
-                              <div className="flex h-full items-center justify-center text-stone-400">
+                              <div className="flex h-full items-center justify-center text-stone-300">
                                 <ImageIcon size={24} />
                               </div>
                             )}
 
                             {itemIsVideo && (
-                              <span className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[2px]">
-                                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white/20 text-white shadow-lg backdrop-blur-md">
-                                  <Play
-                                    size={15}
-                                    fill="currentColor"
-                                  />
-                                </span>
+                              <span className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <Play
+                                  size={18}
+                                  fill="currentColor"
+                                  className="text-white drop-shadow"
+                                />
                               </span>
                             )}
                           </div>
 
-                          {/* ITEM TEXT */}
-                          <div className="flex min-w-0 flex-1 flex-col justify-center px-2.5 py-1.5 sm:px-4 sm:py-2">
-                            <span className="truncate text-[9px] font-bold uppercase tracking-[0.12em] text-[#a8752b] sm:text-[10px]">
+                          {/* TEXT */}
+
+                          <div className="flex min-w-0 flex-1 flex-col justify-center px-2.5 py-1 sm:px-4 sm:py-2">
+                            <span className="truncate text-[9px] font-semibold uppercase tracking-wide sm:text-[10px] text-[#b8863b]">
                               {getCategoryLabel(item.category)}
                             </span>
 
-                            <h3 className="truncate text-xs font-bold text-stone-900 sm:mt-1 sm:text-[15px]">
+                            <h3 className="truncate text-xs font-bold text-stone-900 sm:mt-0.5 sm:text-[15px]">
                               {getTitle(item)}
                             </h3>
 
                             <span
-                              className={`mt-1 flex items-center gap-1 text-[10px] sm:text-xs ${
-                                active
-                                  ? "font-semibold text-[#a8752b]"
+                              className={`flex items-center gap-1 text-[10px] sm:mt-0.5 sm:text-xs ${active
+                                  ? "text-[#b8863b]"
                                   : "text-stone-500"
-                              }`}
+                                }`}
                             >
                               {active ? (
                                 "Currently selected"
@@ -339,11 +343,6 @@ const MediaShowcase = () => {
                               )}
                             </span>
                           </div>
-
-                          {/* ACTIVE INDICATOR */}
-                          {active && (
-                            <div className="my-3 w-1 shrink-0 rounded-l-full bg-gradient-to-b from-[#d8b66f] to-[#a8752b]" />
-                          )}
                         </button>
                       );
                     })}
@@ -351,10 +350,11 @@ const MediaShowcase = () => {
                 </div>
               </aside>
 
-              {/* MAIN MEDIA PLAYER */}
-              <div className="order-1 min-w-0 lg:order-2">
+              {/* ================= PLAYER ================= */}
+
+              <div className="order-1 lg:order-2">
                 {selected && (
-                  <div className="group/player relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/80 bg-stone-900/90 shadow-2xl shadow-stone-900/15 sm:aspect-video">
+                  <div className="relative aspect-[4/5] sm:aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl shadow-stone-900/25 ring-1 ring-black/10">
 
                     {isVideo && isPlaying ? (
                       <video
@@ -368,7 +368,8 @@ const MediaShowcase = () => {
                       />
                     ) : (
                       <>
-                        {/* BLURRED BACKDROP */}
+                        {/* Blurred backdrop */}
+
                         {getThumb(selected) && (
                           <img
                             src={getThumb(selected)}
@@ -378,7 +379,8 @@ const MediaShowcase = () => {
                           />
                         )}
 
-                        {/* MAIN IMAGE */}
+                        {/* Main image */}
+
                         {getThumb(selected) ? (
                           <img
                             src={getThumb(selected)}
@@ -386,23 +388,17 @@ const MediaShowcase = () => {
                             className="relative h-full w-full object-cover object-[center_20%] sm:object-contain sm:object-center"
                           />
                         ) : (
-                          <div className="relative flex h-full items-center justify-center text-stone-400">
+                          <div className="relative flex h-full items-center justify-center text-stone-500">
                             <ImageIcon size={40} />
                           </div>
                         )}
 
-                        {/* DARK GRADIENT */}
-                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        {/* Gradient for text */}
 
-                        {/* GLASS TOP BADGE */}
-                        <div className="absolute left-3 top-3 sm:left-5 sm:top-5">
-                          <span className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/20 px-3 py-1.5 text-[10px] font-semibold text-white shadow-lg backdrop-blur-xl sm:text-xs">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#e5c47e]" />
-                            {getCategoryLabel(selected.category)}
-                          </span>
-                        </div>
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
 
-                        {/* GLASS PLAY BUTTON */}
+                        {/* Play button */}
+
                         {isVideo && selected.video?.url && (
                           <button
                             type="button"
@@ -410,7 +406,7 @@ const MediaShowcase = () => {
                             onClick={() =>
                               setPlayingId(selected._id)
                             }
-                            className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 bg-white/20 text-white shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 hover:border-[#d4a853] hover:bg-[#b8863b]/80 sm:h-20 sm:w-20"
+                            className="absolute left-1/2 top-1/2 flex h-16 w-16 -transtone-x-1/2 -transtone-y-1/2 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/40 backdrop-blur-md transition hover:scale-110 hover:bg-[#b8863b] sm:h-20 sm:w-20"
                           >
                             <Play
                               size={26}
@@ -420,19 +416,19 @@ const MediaShowcase = () => {
                           </button>
                         )}
 
-                        {/* TITLE OVERLAY */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8">
-                          <div className="max-w-xl">
-                            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#f1d49a] sm:text-xs">
-                              Turban Culture
-                            </p>
+                        {/* Title chip */}
 
-                            <h3 className="break-words font-serif text-xl font-bold leading-tight text-white drop-shadow-lg sm:text-2xl lg:text-3xl">
-                              {getTitle(selected)}
-                            </h3>
+                        <div className="absolute bottom-3 left-3 right-3 flex min-w-0 flex-col items-start gap-1 sm:bottom-5 sm:left-5 sm:right-5">
+                          {getTitle(selected) !==
+                            getCategoryLabel(selected.category) && (
+                              <span className="rounded-full bg-[#b8863b]/90 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur sm:text-xs">
+                                {getCategoryLabel(selected.category)}
+                              </span>
+                            )}
 
-                            <div className="mt-3 h-0.5 w-12 rounded-full bg-gradient-to-r from-[#e4c17b] to-transparent" />
-                          </div>
+                          <h3 className="max-w-full truncate font-serif text-base font-bold text-white drop-shadow sm:text-xl lg:text-2xl">
+                            {getTitle(selected)}
+                          </h3>
                         </div>
                       </>
                     )}
@@ -440,14 +436,8 @@ const MediaShowcase = () => {
                 )}
 
                 {!selected && (
-                  <div className="flex aspect-[4/5] flex-col items-center justify-center rounded-2xl border border-white/80 bg-white/40 text-sm text-stone-500 shadow-xl backdrop-blur-2xl sm:aspect-video">
-                    <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-white bg-white/50">
-                      <ImageIcon size={28} className="text-[#c4a36b]" />
-                    </div>
-
-                    <p className="font-semibold text-stone-700">
-                      No items in this category
-                    </p>
+                  <div className="flex aspect-[4/5] sm:aspect-video items-center justify-center rounded-2xl bg-white text-sm text-stone-400 ring-1 ring-stone-200">
+                    No items in this category
                   </div>
                 )}
               </div>
