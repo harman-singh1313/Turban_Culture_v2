@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import axios from "axios";
 import {
   FiPlay as Play,
@@ -44,6 +44,9 @@ const MediaShowcase = () => {
   const [filter, setFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
   const [playingId, setPlayingId] = useState(null);
+
+  // Main preview reference for auto scroll
+  const playerRef = useRef(null);
 
   // =========================================================
   // FETCH
@@ -124,11 +127,22 @@ const MediaShowcase = () => {
 
   const handleSelect = (item) => {
     setSelectedId(item._id);
+
     setPlayingId(
       item.category === "videos" && item.video?.url
         ? item._id
         : null
     );
+
+    // Mobile / tablet te main preview tak smooth auto scroll
+    if (window.innerWidth < 1024) {
+      setTimeout(() => {
+        playerRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
+    }
   };
 
   const handleFilter = (value) => {
@@ -239,10 +253,11 @@ const MediaShowcase = () => {
                     key={cat.value}
                     type="button"
                     onClick={() => handleFilter(cat.value)}
-                    className={`h-10 shrink-0 whitespace-nowrap rounded-full px-5 text-sm font-semibold transition ${active
+                    className={`h-10 shrink-0 whitespace-nowrap rounded-full px-5 text-sm font-semibold transition ${
+                      active
                         ? "bg-gradient-to-r from-[#c99a4b] to-[#a8741f] text-white shadow-lg shadow-[#b8863b]/30"
                         : "bg-white text-stone-600 ring-1 ring-[#ecdcc0] hover:text-[#a8741f] hover:ring-[#d4a853]"
-                      }`}
+                    }`}
                   >
                     {cat.label}
                   </button>
@@ -282,10 +297,11 @@ const MediaShowcase = () => {
                           key={item._id}
                           type="button"
                           onClick={() => handleSelect(item)}
-                          className={`group flex w-full items-stretch overflow-hidden rounded-xl border text-left transition ${active
+                          className={`group flex w-full items-stretch overflow-hidden rounded-xl border text-left transition ${
+                            active
                               ? "border-[#c99a4b] bg-[#fbf3e4] shadow-md shadow-[#b8863b]/10"
                               : "border-[#efe3cf] bg-white hover:border-[#dcc08a] hover:shadow-md"
-                            }`}
+                          }`}
                         >
                           {/* THUMB */}
 
@@ -326,10 +342,11 @@ const MediaShowcase = () => {
                             </h3>
 
                             <span
-                              className={`flex items-center gap-1 text-[10px] sm:mt-0.5 sm:text-xs ${active
+                              className={`flex items-center gap-1 text-[10px] sm:mt-0.5 sm:text-xs ${
+                                active
                                   ? "text-[#b8863b]"
                                   : "text-stone-500"
-                                }`}
+                              }`}
                             >
                               {active ? (
                                 "Currently selected"
@@ -352,7 +369,10 @@ const MediaShowcase = () => {
 
               {/* ================= PLAYER ================= */}
 
-              <div className="order-1 lg:order-2">
+              <div
+                ref={playerRef}
+                className="order-1 lg:order-2"
+              >
                 {selected && (
                   <div className="relative aspect-[4/5] sm:aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl shadow-stone-900/25 ring-1 ring-black/10">
 
@@ -421,10 +441,10 @@ const MediaShowcase = () => {
                         <div className="absolute bottom-3 left-3 right-3 flex min-w-0 flex-col items-start gap-1 sm:bottom-5 sm:left-5 sm:right-5">
                           {getTitle(selected) !==
                             getCategoryLabel(selected.category) && (
-                              <span className="rounded-full bg-[#b8863b]/90 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur sm:text-xs">
-                                {getCategoryLabel(selected.category)}
-                              </span>
-                            )}
+                            <span className="rounded-full bg-[#b8863b]/90 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur sm:text-xs">
+                              {getCategoryLabel(selected.category)}
+                            </span>
+                          )}
 
                           <h3 className="max-w-full truncate font-serif text-base font-bold text-white drop-shadow sm:text-xl lg:text-2xl">
                             {getTitle(selected)}

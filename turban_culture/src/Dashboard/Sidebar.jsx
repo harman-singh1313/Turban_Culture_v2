@@ -6,6 +6,9 @@ import {
   Shirt,
   ShoppingBag,
   Settings,
+  Images,
+  Image,
+  Video,
 } from "lucide-react";
 
 const menuItems = [
@@ -30,14 +33,19 @@ const menuItems = [
     icon: ShoppingBag,
   },
   {
+    title: "Gallery Manager",
+    path: "/admin/GalleryManger",
+    icon: Images,
+  },
+  {
     title: "Slider Manager",
     path: "/admin/sliderManager",
-    icon: ShoppingBag,
+    icon: Image,
   },
   {
     title: "Video Manager",
     path: "/admin/videoManager",
-    icon: ShoppingBag,
+    icon: Video,
   },
   {
     title: "Settings",
@@ -119,45 +127,6 @@ const Sidebar = ({ onNavigate }) => {
           })}
         </nav>
       </div>
-
-      {/* ================= ADMIN PROFILE ================= */}
-      {/* <div className="border-t border-white/10 p-4">
-        <div
-          className="
-            flex
-            items-center
-            gap-3
-            rounded-2xl
-            border
-            border-white/20
-            bg-white/10
-            p-4
-            backdrop-blur-sm
-          "
-        >
-          <img
-            src="https://i.pravatar.cc/100"
-            alt="Admin"
-            className="
-              h-11
-              w-11
-              shrink-0
-              rounded-full
-              object-cover
-            "
-          />
-
-          <div className="min-w-0">
-            <h3 className="font-semibold">
-              Admin
-            </h3>
-
-            <p className="truncate text-sm text-white/80">
-              admin@turbanculture.com
-            </p>
-          </div>
-        </div>
-      </div> */}
     </aside>
   );
 };

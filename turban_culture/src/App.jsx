@@ -26,6 +26,7 @@ const ProtectedRoute = lazy(() => import("./Pages/ProtectedRoute"));
 const ResetPassword = lazy(() => import("./Pages/ResetPassword"));
 const SliderManager = lazy(() => import("./Dashboard/SidebarPages/SliderManager"))
 const VideoManager = lazy(() => import("./Dashboard/SidebarPages/VideoManager"))
+const GalleryManager = lazy(() => import("./Dashboard/SidebarPages/GalleryManager"));
 
 /* ---------------- LAYOUT ---------------- */
 const Layout = () => (
@@ -36,8 +37,8 @@ const Layout = () => (
       <Outlet />
     </div>
     <Footer />
-    <FloatingContact/>
-    <GoogleReviewPopup/>
+    <FloatingContact />
+    <GoogleReviewPopup />
   </>
 );
 
@@ -79,6 +80,7 @@ const App = () => {
             <Route path="MediaManager" element={<MediaManager />} />
             <Route path="sliderManager" element={<SliderManager />} />
             <Route path="videoManager" element={<VideoManager />} />
+            <Route path="GalleryManger" element={<GalleryManager />} />
           </Route>
 
           <Route path="/receipt" element={<ReceiptPage />} />
